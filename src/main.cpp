@@ -16,63 +16,14 @@
 #include <service_functions.h>
 #include <OTA.h>
 #include <NET.h>
-
-
-
-// put function declarations here:
-int myFunction(int, int);
-
-// Функция обратного вызова при поступлении входящего сообщения от брокера
-void callback(char *topic, byte *payload, unsigned int length)
-{
-  // Для более корректного сравнения строк приводим их к нижнему регистру и обрезаем пробелы с краев
-  String _payload;
-  for (unsigned int i = 0; i < length; i++)
-  {
-    _payload += String((char)payload[i]);
-  };
-
-  _payload.toLowerCase();
-  _payload.trim();
-
-  // Вывод поступившего сообщения в лог, больше никакого смысла этот блок кода не несет, можно исключить
-  DEBUG_SERIAL.print(F("Message arrived ["));
-  DEBUG_SERIAL.print(topic);
-  DEBUG_SERIAL.print(F("]: "));
-  DEBUG_SERIAL.print(_payload.c_str());
-  DEBUG_SERIAL.println("");
-
-  int pos = 0;
-  String command = "";
-  for (unsigned int i = 0; i < length; i++)
-  {
-    if ((char)payload[i] == '=')
-      break;
-    command += (char)payload[i];
-    pos++;
-  }
-
-  if (command == "1")
-  {
-    // digitalWrite(BUILTIN_LED, LOW);
-    // setColor(RGB::Black(), m_current);
-    // expander.digitalWrite(expander_gpioRelay, lvlRelayOn);
-    return;
-  }
-
-  if (command == "0")
-  {
-    // digitalWrite(BUILTIN_LED, HIGH);
-    // setColor(m_current, RGB::Black());
-    // expander.digitalWrite(expander_gpioRelay, lvlRelayOff);
-    return;
-  }
-}
+#include <MQTT.h>
 
 void setup()
 {
   // put your setup code here, to run once:
-  // int result = myFunction(2, 3);
+  // Инициализируем объект expander. Для Arduino Due - adio.begin(&Wire1);
+  expander.begin();
+  
   DEBUG_SERIAL.begin(DEBUG_SERIAL_BAUDRATE);
   while (!DEBUG_SERIAL)
   {
@@ -94,14 +45,12 @@ void setup()
   DEBUG_SERIAL.flush();
 
   pinMode(gpioRelay, OUTPUT);
-  // expander.pinMode(expander_gpioRelay, OUTPUT);
-  // expander.digitalWrite(expander_gpioRelay, lvlRelayOn);
-  // delay(1000);
-  // expander.digitalWrite(expander_gpioRelay, lvlRelayOff);
-  delay(1000);
+  expander.pinMode(expander_gpioRelay, OUTPUT);
 
-  // настраиваем часы реального времени
-  // initClock();
+  expander.digitalWrite(expander_gpioRelay, lvlRelayOn);
+  delay(1000);
+  expander.digitalWrite(expander_gpioRelay, lvlRelayOff);
+  delay(500);
 
   mqtt_client.setServer(mqttserver, mqttport);
   mqtt_client.setCallback(callback);

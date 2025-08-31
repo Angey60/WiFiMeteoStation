@@ -27,6 +27,9 @@ const String commands_01 = String("/yandex-iot-core/" + deviceId + "/commands");
 const char *commands = "/yandex-iot-core/#";
 const char *events = "warning_light/#";
 
+const char lvlRelayOn = 0x1;
+const char lvlRelayOff = 0x0;
+
 String firmware_url = "https://angey60meteo.ru/firmware.bin";
 
 // создаём объект expander класса GpioExpander по адресу 42
