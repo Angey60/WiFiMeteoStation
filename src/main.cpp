@@ -3,6 +3,7 @@
 #include <ESP8266HTTPClient.h>
 #include <WiFiClientSecureBearSSL.h>
 #include <ESP8266httpUpdate.h>
+#include <LittleFS.h>
 
 #include <time.h>
 
@@ -285,6 +286,15 @@ void setup()
     delay(500);
   }
 
+  if (!LittleFS.begin())
+  {
+    if (DEBUG)
+    {
+      DEBUG_SERIAL.println("An Error has occurred while mounting LittleFS");
+      //return;
+    }
+  }
+
   // Connect to Wi-Fi
   WiFi.mode(WIFI_STA);
   WiFi.begin(SSID, PASS);
@@ -308,7 +318,7 @@ void setup()
       DEBUG_SERIAL.println(" ok");
     }
     // Запускаем обновление
-    //otaStart(firmware_url.c_str());
+    // otaStart(firmware_url.c_str());
   }
   else
   {
