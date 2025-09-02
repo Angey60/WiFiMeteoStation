@@ -21,6 +21,7 @@ const char *yandexIoTCoreBrokerId = "a44fnbeb6ejfibpr07j6";
 const char *mqttpassword = "Nz;tkfBytrfpbcnf:bpymRjnfEghjuhfvvbcnf@7389";
 const int mqttport = 8883;
 
+// /yandex-iot-core/device-iot-wifi_slot/commands
 const String deviceId = "device-iot-wifi_slot"; // unique device id for cloud function
 const String commands_01 = String("/yandex-iot-core/" + deviceId + "/commands");
 
@@ -30,7 +31,4 @@ const char *events = "warning_light/#";
 const char lvlRelayOn = 0x1;
 const char lvlRelayOff = 0x0;
 
-String firmware_url = "https://angey60meteo.ru/firmware.bin";
 
-// создаём объект expander класса GpioExpander по адресу 42
-GpioExpander expander(43);

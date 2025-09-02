@@ -1,3 +1,5 @@
+String firmware_url = "http://angey60meteo.ru/firmware.bin";
+
 void update_started()
 {
     DEBUG_SERIAL.println("CALLBACK:  HTTP update process started");
@@ -26,14 +28,13 @@ void otaStart(const char *linkOTA)
     DEBUG_SERIAL.print(linkOTA);
     DEBUG_SERIAL.println(" ...");
 
-    // Корректируем дату и время
-    setClock();
+    // Create a list of certificates with the server certificate
+    //BearSSL::X509List otaCert(IRG_Root_X1);
+    //BearSSL::WiFiClientSecure otaServ;
+    WiFiClient  otaServ;
+    // Привязываем корневой сертификат к клиенту OTA Server
+    //otaServ.setTrustAnchors(&otaCert);
 
-    // Запускаем обновление прошивки
-    WiFiClientSecure otaWiFi;
-    otaWiFi.setTrustAnchors(&cert);
-
-    ESPhttpUpdate.setLedPin(LED_BUILTIN, LOW);
     // Add optional callback notifiers
     ESPhttpUpdate.onStart(update_started);
     ESPhttpUpdate.onEnd(update_finished);
@@ -41,7 +42,7 @@ void otaStart(const char *linkOTA)
     ESPhttpUpdate.onError(update_error);
 
     // Запускаем обновление
-    t_httpUpdate_return ret = ESPhttpUpdate.update(otaWiFi, linkOTA);
+    t_httpUpdate_return ret = ESPhttpUpdate.update(otaServ, linkOTA);
     // Анализируем результат
     switch (ret)
     {

@@ -2,31 +2,50 @@ void connect()
 {
     delay(500);
 
-    DEBUG_SERIAL.print(F("Conecting to wifi ..."));
+    if (DEBUG)
+    {
+        DEBUG_SERIAL.print(F("Conecting to wifi ..."));
+    }
+
     while (WiFi.status() != WL_CONNECTED)
     {
-        DEBUG_SERIAL.print(F("."));
+        if (DEBUG)
+        {
+            DEBUG_SERIAL.print(F("."));
+        }
         delay(500);
     }
-    DEBUG_SERIAL.println(F(" Connected"));
 
-    net.setInsecure();
+    if (DEBUG)
+    {
+        DEBUG_SERIAL.println(F(" Connected"));
+    }
+    
+    if (DEBUG)
+    {
+        DEBUG_SERIAL.print(F("Connecting to Yandex IoT Core as"));
+        DEBUG_SERIAL.print(yandexIoTCoreBrokerId);
+        DEBUG_SERIAL.print(F(" ..."));
+    }
 
-    DEBUG_SERIAL.print(F("Connecting to Yandex IoT Core as"));
-    DEBUG_SERIAL.print(yandexIoTCoreBrokerId);
-    DEBUG_SERIAL.print(F(" ..."));
     while (!mqtt_client.connect("angey60_Esp8266Client_broker", yandexIoTCoreBrokerId, mqttpassword))
     {
-        DEBUG_SERIAL.print(F("."));
+        if (DEBUG)
+        {
+            DEBUG_SERIAL.print(F("."));
+        }
         delay(500);
     }
-    DEBUG_SERIAL.println(F(" Connected"));
 
-    DEBUG_SERIAL.print(F("Subscribe to: "));
-    DEBUG_SERIAL.print(commands);
-    DEBUG_SERIAL.print(" - ");
-    DEBUG_SERIAL.print(events);
-    DEBUG_SERIAL.println("\r\n");
+    if (DEBUG)
+    {
+        DEBUG_SERIAL.println(F(" Connected"));
+        DEBUG_SERIAL.print(F("Subscribe to: "));
+        DEBUG_SERIAL.print(commands);
+        DEBUG_SERIAL.print(" - ");
+        DEBUG_SERIAL.print(events);
+        DEBUG_SERIAL.println("\r\n");
+    }
 
     mqtt_client.subscribe(commands);
     mqtt_client.subscribe(events);

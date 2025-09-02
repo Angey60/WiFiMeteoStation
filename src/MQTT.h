@@ -12,11 +12,14 @@ void callback(char *topic, byte *payload, unsigned int length)
     _payload.trim();
 
     // Вывод поступившего сообщения в лог, больше никакого смысла этот блок кода не несет, можно исключить
-    DEBUG_SERIAL.print(F("Message arrived ["));
-    DEBUG_SERIAL.print(topic);
-    DEBUG_SERIAL.print(F("]: "));
-    DEBUG_SERIAL.print(_payload.c_str());
-    DEBUG_SERIAL.println("");
+    if (DEBUG)
+    {
+        DEBUG_SERIAL.print(F("Message arrived ["));
+        DEBUG_SERIAL.print(topic);
+        DEBUG_SERIAL.print(F("]: "));
+        DEBUG_SERIAL.print(_payload.c_str());
+        DEBUG_SERIAL.println("");
+    }
 
     int pos = 0;
     String command = "";
@@ -28,19 +31,27 @@ void callback(char *topic, byte *payload, unsigned int length)
         pos++;
     }
 
+    // DEBUG_SERIAL.println("command: "+command);
+
     if (command == "1")
     {
-        // digitalWrite(BUILTIN_LED, LOW);
-        // setColor(RGB::Black(), m_current);
         expander.digitalWrite(expander_gpioRelay, lvlRelayOn);
         return;
     }
 
     if (command == "0")
     {
-        // digitalWrite(BUILTIN_LED, HIGH);
-        // setColor(m_current, RGB::Black());
         expander.digitalWrite(expander_gpioRelay, lvlRelayOff);
         return;
     }
+
+    if (command == "7") // обновление
+    {
+        // CALLBACK:  HTTP update fatal error code -1
+        // HTTP_UPDATE_FAILD Error (-1): HTTP error: connection failed
+        // DEBUG_SERIAL.println("Start OTA ubdate ...");
+        otaStart(firmware_url.c_str());
+        return;
+    }
+    
 }
