@@ -1,39 +1,53 @@
-String firmware_url = "http://angey60meteo.ru/firmware.bin";
+String firmware_url = "https://angey60meteo.ru/firmware.bin";
 
 void update_started()
 {
-    DEBUG_SERIAL.println("CALLBACK:  HTTP update process started");
+    if (DEBUG)
+    {
+        DEBUG_SERIAL.println(F("CALLBACK:  HTTP update process started"));
+    }
 }
 
 void update_finished()
 {
-    DEBUG_SERIAL.println("CALLBACK:  HTTP update process finished");
+    if (DEBUG)
+    {
+        DEBUG_SERIAL.println(F("CALLBACK:  HTTP update process finished"));
+    }
 }
 
 void update_progress(int cur, int total)
 {
-    DEBUG_SERIAL.printf("CALLBACK:  HTTP update process at %d of %d bytes...\n", cur, total);
+    if (DEBUG)
+    {
+        DEBUG_SERIAL.printf("CALLBACK:  HTTP update process at %d of %d bytes...\n", cur, total);
+    }
 }
 
 void update_error(int err)
 {
-    DEBUG_SERIAL.printf("CALLBACK:  HTTP update fatal error code %d\n", err);
+    if (DEBUG)
+    {
+        DEBUG_SERIAL.printf("CALLBACK:  HTTP update fatal error code %d\n", err);
+    }
 }
 
 // CALLBACK:  HTTP update fatal error code -101
 // HTTP_UPDATE_FAILD Error (-101): Server Did Not Report Size
 void otaStart(const char *linkOTA)
 {
-    DEBUG_SERIAL.print("OTA :: Receiving OTA: ");
-    DEBUG_SERIAL.print(linkOTA);
-    DEBUG_SERIAL.println(" ...");
-
+    if (DEBUG)
+    {
+        DEBUG_SERIAL.print(F("OTA :: Receiving OTA: "));
+        DEBUG_SERIAL.print(linkOTA);
+        DEBUG_SERIAL.println(F(" ..."));
+    }
     // Create a list of certificates with the server certificate
-    //BearSSL::X509List otaCert(IRG_Root_X1);
-    //BearSSL::WiFiClientSecure otaServ;
-    WiFiClient  otaServ;
+    BearSSL::X509List otaCert(IRG_Root_X1);
+    BearSSL::WiFiClientSecure otaServ;
+    //WiFiClient otaServ;
     // Привязываем корневой сертификат к клиенту OTA Server
-    //otaServ.setTrustAnchors(&otaCert);
+    otaServ.setTrustAnchors(&otaCert);
 
     // Add optional callback notifiers
     ESPhttpUpdate.onStart(update_started);
@@ -47,16 +61,29 @@ void otaStart(const char *linkOTA)
     switch (ret)
     {
     case HTTP_UPDATE_FAILED:
-        DEBUG_SERIAL.printf("HTTP_UPDATE_FAILD Error (%d): %s\n", ESPhttpUpdate.getLastError(), ESPhttpUpdate.getLastErrorString().c_str());
+        if (DEBUG)
+        {
+            DEBUG_SERIAL.printf("HTTP_UPDATE_FAILD Error (%d): %s\n", ESPhttpUpdate.getLastError(), ESPhttpUpdate.getLastErrorString().c_str());
+        }
         break;
 
     case HTTP_UPDATE_NO_UPDATES:
-        DEBUG_SERIAL.println("HTTP_UPDATE_NO_UPDATES");
+        if (DEBUG)
+        {
+            DEBUG_SERIAL.println(F("HTTP_UPDATE_NO_UPDATES"));
+        }
         break;
 
     case HTTP_UPDATE_OK:
-        DEBUG_SERIAL.println("HTTP_UPDATE_OK");
+        if (DEBUG)
+        {
+            DEBUG_SERIAL.println(F("HTTP_UPDATE_OK"));
+        }
         break;
     };
-    DEBUG_SERIAL.println();
+
+    if (DEBUG)
+    {
+        DEBUG_SERIAL.println();
+    }
 }

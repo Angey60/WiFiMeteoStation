@@ -9,12 +9,7 @@ const char *PASS = "98797899";
 // Номера выводов для подключения реле
 const int gpioRelay = 5;
 const int expander_gpioRelay = 2;
-
-JsonDocument doc;
-char json_buffer[200] = {0};
-char json_buffer_err[50] = {0};
-#define BUFFER_LENGTH 128
-char buffer[BUFFER_LENGTH];
+const int expander_gpioRelay1 = 0;
 
 const char *mqttserver = "mqtt.cloud.yandex.net";
 const char *yandexIoTCoreBrokerId = "a44fnbeb6ejfibpr07j6";
@@ -28,7 +23,21 @@ const String commands_01 = String("/yandex-iot-core/" + deviceId + "/commands");
 const char *commands = "/yandex-iot-core/#";
 const char *events = "warning_light/#";
 
+// Топики для публикации температуры и влажности
+const char *mqttTopicParamerters = "/yandex-iot-core/parameter_values";
+const bool mqttSensorsRetained = false;
+
 const char lvlRelayOn = 0x1;
 const char lvlRelayOff = 0x0;
+
+bool first_flag = false;
+
+char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+
+const char *monthName[12] = {
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+};
+
 
 

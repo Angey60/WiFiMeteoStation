@@ -1,59 +1,5 @@
-void connect()
-{
-    delay(500);
-
-    if (DEBUG)
-    {
-        DEBUG_SERIAL.print(F("Conecting to wifi ..."));
-    }
-
-    while (WiFi.status() != WL_CONNECTED)
-    {
-        if (DEBUG)
-        {
-            DEBUG_SERIAL.print(F("."));
-        }
-        delay(500);
-    }
-
-    if (DEBUG)
-    {
-        DEBUG_SERIAL.println(F(" Connected"));
-    }
-    
-    if (DEBUG)
-    {
-        DEBUG_SERIAL.print(F("Connecting to Yandex IoT Core as"));
-        DEBUG_SERIAL.print(yandexIoTCoreBrokerId);
-        DEBUG_SERIAL.print(F(" ..."));
-    }
-
-    while (!mqtt_client.connect("angey60_Esp8266Client_broker", yandexIoTCoreBrokerId, mqttpassword))
-    {
-        if (DEBUG)
-        {
-            DEBUG_SERIAL.print(F("."));
-        }
-        delay(500);
-    }
-
-    if (DEBUG)
-    {
-        DEBUG_SERIAL.println(F(" Connected"));
-        DEBUG_SERIAL.print(F("Subscribe to: "));
-        DEBUG_SERIAL.print(commands);
-        DEBUG_SERIAL.print(" - ");
-        DEBUG_SERIAL.print(events);
-        DEBUG_SERIAL.println("\r\n");
-    }
-
-    mqtt_client.subscribe(commands);
-    mqtt_client.subscribe(events);
-    mqtt_client.subscribe(commands_01.c_str());
-}
-
 // Подключение к WiFi точке доступа
-bool wifiConnected()
+bool wifi_connected()
 {
     // Если подключение активно, то просто выходим и возвращаем true
     if (WiFi.status() != WL_CONNECTED)
@@ -63,7 +9,7 @@ bool wifiConnected()
         {
             DEBUG_SERIAL.print(F("Connecting to WiFi AP "));
             DEBUG_SERIAL.print(SSID);
-            DEBUG_SERIAL.print(" ");
+            DEBUG_SERIAL.print(F(" "));
         }
         // Настраиваем WiFi
         WiFi.mode(WIFI_STA);
@@ -83,14 +29,14 @@ bool wifiConnected()
                 // нужно всё равно "обслуживать" реле и датчики, иначе может случиться беда
                 if (DEBUG)
                 {
-                    DEBUG_SERIAL.println("");
+                    DEBUG_SERIAL.println();
                     DEBUG_SERIAL.println(F("Connection failed!"));
                 }
                 return false;
             };
             if (DEBUG)
             {
-                DEBUG_SERIAL.print(".");
+                DEBUG_SERIAL.print(F("."));
             }
             delay(500);
         };
@@ -103,11 +49,18 @@ bool wifiConnected()
                 DEBUG_SERIAL.println(F(" ок"));
                 DEBUG_SERIAL.print(F("WiFi connected, obtained IP address: "));
                 DEBUG_SERIAL.println(WiFi.localIP());
-
-                digitalWrite(gpioRelay, lvlRelayOff);
             }
+            digitalWrite(gpioRelay, lvlRelayOff);
         }
     }
 
     return (WiFi.status() == WL_CONNECTED);
+}
+
+bool wifi_isConnect()
+{
+    bool flag = (WiFi.status() == WL_CONNECTED);;
+    // индикатор MQTT
+    digitalWrite(gpioRelay, flag);
+    return flag;
 }
