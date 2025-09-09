@@ -1,6 +1,24 @@
 /**************************************************************************
  * Сервисные функции
  *************************************************************************/
+#include <ArduinoJson.h>
+JsonDocument doc;
+char json_buffer[200] = {0};
+char json_buffer_err[50] = {0};
+#define BUFFER_LENGTH 128
+char buffer[BUFFER_LENGTH];
+#include <RTClib.h>
+// создаём объект для работы с часами реального времени
+RTC_DS1307 rtc;
+// библиотека для работы с метео сенсором
+#include <TroykaMeteoSensor.h>
+// библиотека для работы с часами реального времени
+// создаём объект для работы с датчиком
+TroykaMeteoSensor SHT3x;
+// создаём объект для работы с часами реального времени
+// RTC_DS1307 rtc;
+// Создаём объект для работы с акселерометром
+Barometer barometer;
 
 String ConvertCharToString(const char ch[])
 {
@@ -110,7 +128,7 @@ void setClock()
 }
 
 // Чтение температуры и влажности
-String readWeatherData(bool flag = true)
+String readWeatherData()
 {
   // считываем данные с датчика
   float float_temp = 0;
@@ -141,6 +159,7 @@ String readWeatherData(bool flag = true)
       DEBUG_SERIAL.println(F(" C \t"));
       DEBUG_SERIAL.print(F("Humidity = "));
       DEBUG_SERIAL.print(SHT3x.getHumidity());
+      DEBUG_SERIAL.print(" %");
       DEBUG_SERIAL.println(F("\t"));
     }
     break;
@@ -161,9 +180,6 @@ String readWeatherData(bool flag = true)
     break;
   };
 
-  // delay(100);
-  //  Создаём переменную для значения атмосферного давления в Паскалях
-  // float pressurePascals = barometer.readPressurePascals();
   //  Создаём переменную для значения атмосферного давления в мм рт.ст.
   float pressureMillimetersHg = barometer.readPressureMillimetersHg();
   // Создаём переменную для значения высоты над уровнем море
@@ -173,8 +189,8 @@ String readWeatherData(bool flag = true)
   str_mill = String(pressureMillimetersHg);
   if (DEBUG)
   {
+    DEBUG_SERIAL.print(F("Pressure = "));
     DEBUG_SERIAL.print(pressureMillimetersHg);
-    // DEBUG_SERIAL.print(str_mill.c_str());
     DEBUG_SERIAL.print(F(" mmHg\t"));
     DEBUG_SERIAL.println(F("\r\n"));
   }
@@ -204,10 +220,11 @@ String readWeatherData(bool flag = true)
   // чистим буфер
   deserializeJson(doc, json_buffer_err);
 
-  if ((flag == true))
+  if (mqtt_client.connected())
   {
     mqtt_client.publish(mqttTopicParamerters, json_buffer, mqttSensorsRetained);
+    //memset(json_buffer, 0, sizeof(json_buffer)); 
   }
 
-  return json_buffer;
+  return "Sending the data to the MQTT-broker ...";
 }

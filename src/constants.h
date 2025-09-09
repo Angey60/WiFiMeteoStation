@@ -18,9 +18,9 @@ const int mqttport = 8883;
 
 // /yandex-iot-core/device-iot-wifi_slot/commands
 const String deviceId = "device-iot-wifi_slot"; // unique device id for cloud function
-const String commands_01 = String("/yandex-iot-core/" + deviceId + "/commands");
+const String commands = String("/yandex-iot-core/" + deviceId + "/commands");
 
-const char *commands = "/yandex-iot-core/#";
+//const char *commands = "/yandex-iot-core/#";
 const char *events = "warning_light/#";
 
 // Топики для публикации температуры и влажности
@@ -29,15 +29,17 @@ const bool mqttSensorsRetained = false;
 
 const char lvlRelayOn = 0x1;
 const char lvlRelayOff = 0x0;
+char lvlRelayFlag = 0x0;
 
-bool first_flag = false;
-
+bool first_flag = false; // Первая отправка данных после загрузки скетча
+/*
 char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 
 const char *monthName[12] = {
   "Jan", "Feb", "Mar", "Apr", "May", "Jun",
   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
 };
+*/
 
 
 

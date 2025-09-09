@@ -1,3 +1,10 @@
+/**************************************************************************
+ * OTA функции
+ *************************************************************************/
+#include <ESP8266HTTPClient.h>
+#include <WiFiClientSecureBearSSL.h>
+#include <ESP8266httpUpdate.h>
+
 String firmware_url = "https://angey60meteo.ru/firmware.bin";
 
 void update_started()
@@ -45,8 +52,8 @@ void otaStart(const char *linkOTA)
     // Create a list of certificates with the server certificate
     BearSSL::X509List otaCert(IRG_Root_X1);
     BearSSL::WiFiClientSecure otaServ;
-    //WiFiClient otaServ;
-    // Привязываем корневой сертификат к клиенту OTA Server
+    // WiFiClient otaServ;
+    //  Привязываем корневой сертификат к клиенту OTA Server
     otaServ.setTrustAnchors(&otaCert);
 
     // Add optional callback notifiers

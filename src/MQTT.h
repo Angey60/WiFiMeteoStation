@@ -1,64 +1,69 @@
+/**************************************************************************
+ * MQTT-броккер, функции
+ *************************************************************************/
 bool mqtt_connect()
 {
-    delay(500);
-
-    if (DEBUG)
-    {
-        DEBUG_SERIAL.print(F("Conecting to wifi ..."));
-    }
-
-    while (WiFi.status() != WL_CONNECTED)
+    if (!mqtt_client.connected())
     {
         if (DEBUG)
         {
-            DEBUG_SERIAL.print(F("."));
+            DEBUG_SERIAL.print(F("Connecting to Yandex IoT Core as"));
+            DEBUG_SERIAL.print(yandexIoTCoreBrokerId);
+            DEBUG_SERIAL.print(F(" ..."));
         }
-        delay(500);
-    }
 
-    if (DEBUG)
-    {
-        DEBUG_SERIAL.println(F(" Connected"));
-    }
-
-    if (DEBUG)
-    {
-        DEBUG_SERIAL.print(F("Connecting to Yandex IoT Core as"));
-        DEBUG_SERIAL.print(yandexIoTCoreBrokerId);
-        DEBUG_SERIAL.print(F(" ..."));
-    }
-
-    while (!mqtt_client.connect("angey60_Esp8266Client_broker", yandexIoTCoreBrokerId, mqttpassword))
-    {
-        if (DEBUG)
+        while (!mqtt_client.connected())
         {
-            DEBUG_SERIAL.print(F("."));
+            if (mqtt_client.connect("angey60_Esp8266Client_broker", yandexIoTCoreBrokerId, mqttpassword))
+            {
+                if (DEBUG)
+                {
+                    DEBUG_SERIAL.println(F(" ok"));
+                }
+            }
+            else
+            {
+                if (DEBUG)
+                {
+                    DEBUG_SERIAL.print(F("."));
+                }
+                delay(500);
+            }
         }
-        delay(500);
-    }
 
-    if (DEBUG)
-    {
-        DEBUG_SERIAL.println(F(" Connected"));
-        DEBUG_SERIAL.print(F("Subscribe to: "));
-        DEBUG_SERIAL.print(commands);
-        DEBUG_SERIAL.print(F(" - "));
-        DEBUG_SERIAL.print(events);
-        DEBUG_SERIAL.println(F("\r\n"));
+        if (mqtt_client.connected())
+        {
+            if (DEBUG)
+            {
+                DEBUG_SERIAL.print(F("Subscribe to: "));
+                DEBUG_SERIAL.print(commands);
+                DEBUG_SERIAL.print(F(" - "));
+                DEBUG_SERIAL.print(events);
+                DEBUG_SERIAL.println(F("\r\n"));
+            }
+            //
+            //mqtt_client.subscribe(commands);
+            mqtt_client.subscribe(events);
+            mqtt_client.subscribe(commands.c_str());
+        }
+        else
+        {
+            if (DEBUG)
+            {
+                DEBUG_SERIAL.println(F("Connection to the mqtt broker could not be established!"));
+            }
+        }
     }
-
-    mqtt_client.subscribe(commands);
-    mqtt_client.subscribe(events);
-    mqtt_client.subscribe(commands_01.c_str());
 
     return mqtt_client.connected();
 }
 
-bool mqtt_isConnect()
+bool mqtt_isConnected()
 {
     bool flag = mqtt_client.connected();
     // индикатор MQTT
     expander.digitalWrite(expander_gpioRelay1, flag);
+    delay(50);
     return flag;
 }
 
@@ -103,17 +108,17 @@ void mqtt_callback(char *topic, byte *payload, unsigned int length)
         pos++;
     }
 
-    // DEBUG_SERIAL.println("command: "+command);
-
     if (command == "1")
     {
         expander.digitalWrite(expander_gpioRelay, lvlRelayOn);
+        lvlRelayFlag = 0x1;
         return;
     }
 
     if (command == "0")
     {
         expander.digitalWrite(expander_gpioRelay, lvlRelayOff);
+        lvlRelayFlag = 0x0;
         return;
     }
 

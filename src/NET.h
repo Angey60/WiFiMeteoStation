@@ -1,8 +1,11 @@
+/**************************************************************************
+ * NET функции
+ *************************************************************************/
 // Подключение к WiFi точке доступа
-bool wifi_connected()
+bool wifi_connect()
 {
     // Если подключение активно, то просто выходим и возвращаем true
-    if (WiFi.status() != WL_CONNECTED)
+    if (!WiFi.isConnected())
     {
         // ... иначе пробуем подключиться к сети
         if (DEBUG)
@@ -14,12 +17,12 @@ bool wifi_connected()
         // Настраиваем WiFi
         WiFi.mode(WIFI_STA);
         WiFi.begin(SSID, PASS);
-
+        //
         digitalWrite(gpioRelay, lvlRelayOn);
-
+        //
         // И ждем подключения 60 циклов по 0,5 сек - это 30 секунд
         int i = 0;
-        while (WiFi.status() != WL_CONNECTED)
+        while (!WiFi.isConnected())
         {
             i++;
             if (i > 60)
@@ -41,7 +44,7 @@ bool wifi_connected()
             delay(500);
         };
 
-        if (WiFi.status() == WL_CONNECTED)
+        if (WiFi.isConnected())
         {
             // Подключение успешно установлено
             if (DEBUG)
@@ -54,13 +57,22 @@ bool wifi_connected()
         }
     }
 
-    return (WiFi.status() == WL_CONNECTED);
+    return (WiFi.isConnected());
 }
 
-bool wifi_isConnect()
+void wifi_disconnect()
 {
-    bool flag = (WiFi.status() == WL_CONNECTED);;
-    // индикатор MQTT
+    if (WiFi.isConnected())
+    {
+        WiFi.disconnect();
+    };
+}
+
+bool wifi_isConnected()
+{
+    bool flag = WiFi.isConnected();
+    // индикатор WiFi
     digitalWrite(gpioRelay, flag);
+    delay(50);
     return flag;
 }

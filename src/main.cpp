@@ -2,25 +2,10 @@
 #include <avr/pgmspace.h>
 #include <Wire.h>
 #include <time.h>
-#include <RTClib.h>
-// создаём объект для работы с часами реального времени
-RTC_DS1307 rtc;
-
+//
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
-#include <ESP8266HTTPClient.h>
-#include <WiFiClientSecureBearSSL.h>
-#include <ESP8266httpUpdate.h>
-#include <FS.h>
-#include <LittleFS.h>
-
-#include <ArduinoJson.h>
-JsonDocument doc;
-char json_buffer[200] = {0};
-char json_buffer_err[50] = {0};
-#define BUFFER_LENGTH 128
-char buffer[BUFFER_LENGTH];
-
+//
 #include <Adafruit_I2CDevice.h>
 // библиотека для работы с модулем Slot Expander (I²C IO)
 #include <GpioExpander.h>
@@ -31,22 +16,13 @@ GpioExpander expander(43);
 #include <QuadDisplay2.h>
 // создаём объект класса QuadDisplay и передаём номер пина CS
 QuadDisplay qd(4);
-// библиотека для работы с метео сенсором
-#include <TroykaMeteoSensor.h>
-// библиотека для работы с часами реального времени
-// создаём объект для работы с датчиком
-TroykaMeteoSensor SHT3x;
-// создаём объект для работы с часами реального времени
-// RTC_DS1307 rtc;
-// Создаём объект для работы с акселерометром
-Barometer barometer;
-
 #include <CERTIFICATES.h>
 #include <constants.h>
 #include <service_functions.h>
 #include <OTA.h>
 #include <NET.h>
 #include <MQTT.h>
+#include <LITTLEFS1.h>
 
 void setup()
 {
@@ -105,34 +81,21 @@ void setup()
   expander.digitalWrite(expander_gpioRelay1, lvlRelayOff);
   delay(500);
 
-  /*
-  if (!LittleFS.begin())
+  if (DEBUG)
   {
-    DEBUG_SERIAL.println("An Error has occurred while mounting LittleFS");
-    // return;
+    DEBUG_SERIAL.println(F("\r\n"));
   }
 
-  File file = LittleFS.open("/text.txt", "r");
-  if (!file)
-  {
-    DEBUG_SERIAL.println("Failed to open file for reading");
-    // return;
-  }
-
-  DEBUG_SERIAL.print("File Content: ");
-  while (file.available())
-  {
-    DEBUG_SERIAL.write(file.read());
-  }
-  file.close();
-  */
-
-  DEBUG_SERIAL.println(F("\r\n"));
-
+  // Создаем слиент Yandex Iot Core
   MQTClient();
 
   // Подключаемся к WiFi
-  if (wifi_connected())
+  while (!wifi_connect())
+  {
+    //
+  }
+
+  if (wifi_isConnected())
   {
     // Корректируем дату и время
     setClock();
@@ -141,54 +104,77 @@ void setup()
     {
       ;
     }
-    if (mqtt_isConnect())
-      ;
   }
+
+  if (mqtt_isConnected())
+    ;
 
   // Инициализируем барометр
   barometer.begin();
   delay(100);
-  //
-  String s = readWeatherData(false);
-  DEBUG_SERIAL.println(s);
-  delay(100);
 
-  while (!wifi_connected())
+  // формируем пакет данных и отправляем их на сервер
+  String s = readWeatherData();
+
+  if (mqtt_isConnected())
   {
-    ;
+    if (DEBUG)
+    {
+      DEBUG_SERIAL.println(s);
+      DEBUG_SERIAL.println();
+      mqtt_client.loop();
+    }
   }
+  else
+  {
+    if (DEBUG)
+    {
+      DEBUG_SERIAL.println(F("Connection to the mqtt-broker could not be established!"));
+      DEBUG_SERIAL.println();
+    }
+  }
+
+  delay(1000);
 }
 
 void loop()
 {
-  // put your main code here, to run repeatedly:
-  mqtt_client.loop();
-
-  if (!mqtt_client.connected())
+  if (wifi_isConnected())
   {
-    // Корректируем дату и время
-    setClock();
-    // Подключаемся к Iot Core
-    while (!mqtt_connect())
+    if (!mqtt_client.loop())
+    {
+      // Подключаемся к Iot Core
+      while (!mqtt_connect())
+      {
+        ;
+      }
+    }
+    else
+    {
+      static unsigned long lastTempRead = 0;
+      if (((millis() - lastTempRead) >= 7 * 60000) || (not first_flag))
+      {
+        first_flag = true;
+        lastTempRead = millis();
+        if (lvlRelayFlag == 0x01) // если метеостанция включена
+        {
+          readWeatherData();
+        }
+      };
+    }
+  }
+  else
+  {
+    while (!wifi_connect())
     {
       ;
     }
   }
 
-  // Проверяем состояние WiFi и MQTT
-  if (mqtt_isConnect())
+  if (wifi_isConnected())
     ;
-  if (wifi_isConnect())
+  if (mqtt_isConnected())
     ;
 
-  static unsigned long lastTempRead = 0;
-  if (((millis() - lastTempRead) >= 30 * 60000) || (not first_flag))
-  {
-    first_flag = true;
-    lastTempRead = millis();
-    if (lvlRelayOn == 0x01) // ??????
-    {
-      readWeatherData(true);
-    }
-  };
+  delay(1000);
 }
