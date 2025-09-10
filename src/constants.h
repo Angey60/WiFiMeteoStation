@@ -7,9 +7,9 @@ const char *PASS = "98797899";
 #define DEBUG true
 
 // Номера выводов для подключения реле
-const int gpioRelay = 5;
-const int expander_gpioRelay = 2;
-const int expander_gpioRelay1 = 0;
+const int gpioWiFi = 5; // красный индикатор
+const int gpioOnOff = 2; // зеленый индикатор
+const int gpioMQTT = 0; // синий индикатор
 
 const char *mqttserver = "mqtt.cloud.yandex.net";
 const char *yandexIoTCoreBrokerId = "a44fnbeb6ejfibpr07j6";
@@ -20,8 +20,7 @@ const int mqttport = 8883;
 const String deviceId = "device-iot-wifi_slot"; // unique device id for cloud function
 const String commands = String("/yandex-iot-core/" + deviceId + "/commands");
 
-//const char *commands = "/yandex-iot-core/#";
-const char *events = "warning_light/#";
+//const char *events = "warning_light/#";
 
 // Топики для публикации температуры и влажности
 const char *mqttTopicParamerters = "/yandex-iot-core/parameter_values";

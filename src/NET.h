@@ -18,7 +18,7 @@ bool wifi_connect()
         WiFi.mode(WIFI_STA);
         WiFi.begin(SSID, PASS);
         //
-        digitalWrite(gpioRelay, lvlRelayOn);
+        digitalWrite(gpioWiFi, lvlRelayOn);
         //
         // И ждем подключения 60 циклов по 0,5 сек - это 30 секунд
         int i = 0;
@@ -53,7 +53,7 @@ bool wifi_connect()
                 DEBUG_SERIAL.print(F("WiFi connected, obtained IP address: "));
                 DEBUG_SERIAL.println(WiFi.localIP());
             }
-            digitalWrite(gpioRelay, lvlRelayOff);
+            digitalWrite(gpioWiFi, lvlRelayOff);
         }
     }
 
@@ -72,7 +72,7 @@ bool wifi_isConnected()
 {
     bool flag = WiFi.isConnected();
     // индикатор WiFi
-    digitalWrite(gpioRelay, flag);
+    digitalWrite(gpioWiFi, flag);
     delay(50);
     return flag;
 }

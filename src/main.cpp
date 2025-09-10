@@ -36,13 +36,13 @@ void setup()
   expander.begin();
   // Инициализируем индикаторы
   // красная лампочка On/Off WiFi
-  pinMode(gpioRelay, OUTPUT);
+  pinMode(gpioWiFi, OUTPUT);
   // зеленая лампочка On/Off метеостанции
-  expander.pinMode(expander_gpioRelay, OUTPUT);
-  expander.digitalWrite(expander_gpioRelay, lvlRelayOff);
+  expander.pinMode(gpioOnOff, OUTPUT);
+  expander.digitalWrite(gpioOnOff, lvlRelayOff);
   // синяя лампочка On/Off MQTT !!!
-  expander.pinMode(expander_gpioRelay1, OUTPUT);
-  expander.digitalWrite(expander_gpioRelay1, lvlRelayOff);
+  expander.pinMode(gpioMQTT, OUTPUT);
+  expander.digitalWrite(gpioMQTT, lvlRelayOff);
   // Инициализируем метеостанцию
   SHT3x.begin();
 
@@ -70,15 +70,15 @@ void setup()
   }
 
   // Индикатор включения/отклячения метеостанции
-  expander.digitalWrite(expander_gpioRelay, lvlRelayOn);
+  expander.digitalWrite(gpioOnOff, lvlRelayOn);
   delay(500);
-  expander.digitalWrite(expander_gpioRelay, lvlRelayOff);
+  expander.digitalWrite(gpioOnOff, lvlRelayOff);
   delay(500);
 
   // Индикатор включения/отклячения метеостанции
-  expander.digitalWrite(expander_gpioRelay1, lvlRelayOn);
+  expander.digitalWrite(gpioMQTT, lvlRelayOn);
   delay(500);
-  expander.digitalWrite(expander_gpioRelay1, lvlRelayOff);
+  expander.digitalWrite(gpioMQTT, lvlRelayOff);
   delay(500);
 
   if (DEBUG)
@@ -112,27 +112,6 @@ void setup()
   // Инициализируем барометр
   barometer.begin();
   delay(100);
-
-  // формируем пакет данных и отправляем их на сервер
-  // String s = readWeatherData();
-
-  /*if (mqtt_isConnected())
-  {
-    if (DEBUG)
-    {
-      DEBUG_SERIAL.println(s);
-      DEBUG_SERIAL.println();
-      mqtt_client.loop();
-    }
-  }
-  else
-  {
-    if (DEBUG)
-    {
-      DEBUG_SERIAL.println(F("Connection to the mqtt-broker could not be established!"));
-      DEBUG_SERIAL.println();
-    }
-  }*/
 
   delay(5000);
 

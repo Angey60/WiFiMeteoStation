@@ -1,6 +1,9 @@
 /**************************************************************************
  * MQTT-броккер, функции
  *************************************************************************/
+
+void mqtt_callback(char *topic, byte *payload, unsigned int length);
+
 bool mqtt_connect()
 {
     if (!mqtt_client.connected())
@@ -11,6 +14,9 @@ bool mqtt_connect()
             DEBUG_SERIAL.print(yandexIoTCoreBrokerId);
             DEBUG_SERIAL.print(F(" ..."));
         }
+
+        mqtt_client.setServer(mqttserver, mqttport);
+        mqtt_client.setCallback(mqtt_callback);
 
         while (!mqtt_client.connected())
         {
@@ -37,13 +43,9 @@ bool mqtt_connect()
             {
                 DEBUG_SERIAL.print(F("Subscribe to: "));
                 DEBUG_SERIAL.print(commands);
-                DEBUG_SERIAL.print(F(" - "));
-                DEBUG_SERIAL.print(events);
                 DEBUG_SERIAL.println(F("\r\n"));
             }
             //
-            //mqtt_client.subscribe(commands);
-            mqtt_client.subscribe(events);
             mqtt_client.subscribe(commands.c_str());
         }
         else
@@ -62,7 +64,7 @@ bool mqtt_isConnected()
 {
     bool flag = mqtt_client.connected();
     // индикатор MQTT
-    expander.digitalWrite(expander_gpioRelay1, flag);
+    expander.digitalWrite(gpioMQTT, flag);
     delay(50);
     return flag;
 }
@@ -73,6 +75,17 @@ void mqtt_disconnect()
     {
         mqtt_client.disconnect();
     };
+}
+
+void MQTClient()
+{
+    // Привязываем корневой сертификат к клиенту Iot Core
+    mqttServ.setTrustAnchors(&mqttCert);
+    // Настраиваем клиент Iot Core
+    //mqtt_client.setServer(mqttserver, mqttport);
+    //mqtt_client.setCallback(mqtt_callback);
+    mqtt_client.setBufferSize(1024);
+    mqtt_client.setKeepAlive(15);
 }
 
 // Функция обратного вызова при поступлении входящего сообщения от брокера
@@ -110,14 +123,14 @@ void mqtt_callback(char *topic, byte *payload, unsigned int length)
 
     if (command == "1")
     {
-        expander.digitalWrite(expander_gpioRelay, lvlRelayOn);
+        expander.digitalWrite(gpioMQTT, lvlRelayOn);
         lvlRelayFlag = 0x1;
         return;
     }
 
     if (command == "0")
     {
-        expander.digitalWrite(expander_gpioRelay, lvlRelayOff);
+        expander.digitalWrite(gpioMQTT, lvlRelayOff);
         lvlRelayFlag = 0x0;
         return;
     }
@@ -132,15 +145,4 @@ void mqtt_callback(char *topic, byte *payload, unsigned int length)
         otaStart(firmware_url.c_str());
         return;
     }
-}
-
-void MQTClient()
-{
-    // Привязываем корневой сертификат к клиенту Iot Core
-    mqttServ.setTrustAnchors(&mqttCert);
-    // Настраиваем клиент Iot Core
-    mqtt_client.setServer(mqttserver, mqttport);
-    mqtt_client.setCallback(mqtt_callback);
-    mqtt_client.setBufferSize(1024);
-    mqtt_client.setKeepAlive(15);
 }
