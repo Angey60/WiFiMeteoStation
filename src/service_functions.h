@@ -223,7 +223,12 @@ String readWeatherData()
   if (mqtt_client.connected())
   {
     mqtt_client.publish(mqttTopicParamerters, json_buffer, mqttSensorsRetained);
-    //memset(json_buffer, 0, sizeof(json_buffer)); 
+    if (DEBUG)
+    {
+      //DEBUG_SERIAL.println(json_buffer);
+      //DEBUG_SERIAL.println();
+    }
+    memset(json_buffer, 0, sizeof(json_buffer)); 
   }
 
   return "Sending the data to the MQTT-broker ...";

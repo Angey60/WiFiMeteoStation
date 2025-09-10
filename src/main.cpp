@@ -114,9 +114,9 @@ void setup()
   delay(100);
 
   // формируем пакет данных и отправляем их на сервер
-  String s = readWeatherData();
+  // String s = readWeatherData();
 
-  if (mqtt_isConnected())
+  /*if (mqtt_isConnected())
   {
     if (DEBUG)
     {
@@ -132,9 +132,15 @@ void setup()
       DEBUG_SERIAL.println(F("Connection to the mqtt-broker could not be established!"));
       DEBUG_SERIAL.println();
     }
-  }
+  }*/
 
-  delay(1000);
+  delay(5000);
+
+  if (DEBUG)
+  {
+    DEBUG_SERIAL.println("Start ...");
+    DEBUG_SERIAL.println();
+  }
 }
 
 void loop()
@@ -151,16 +157,23 @@ void loop()
     }
     else
     {
-      static unsigned long lastTempRead = 0;
-      if (((millis() - lastTempRead) >= 7 * 60000) || (not first_flag))
+      if (first_flag == true)
       {
-        first_flag = true;
-        lastTempRead = millis();
-        if (lvlRelayFlag == 0x01) // если метеостанция включена
+        first_flag = false;
+        readWeatherData();
+      }
+      else if (first_flag == false)
+      {
+        static unsigned long lastTempRead = 0;
+        if (((millis() - lastTempRead) >= 7 * 60000))
         {
-          readWeatherData();
-        }
-      };
+          lastTempRead = millis();
+          if (lvlRelayFlag == 0x01) // если метеостанция включена
+          {
+            readWeatherData();
+          }
+        };
+      }
     }
   }
   else

@@ -31,7 +31,7 @@ const char lvlRelayOn = 0x1;
 const char lvlRelayOff = 0x0;
 char lvlRelayFlag = 0x0;
 
-bool first_flag = false; // Первая отправка данных после загрузки скетча
+bool first_flag = true; // Первая отправка данных после загрузки скетча
 /*
 char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 
