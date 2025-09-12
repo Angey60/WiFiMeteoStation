@@ -74,7 +74,6 @@ void setup()
   delay(500);
   expander.digitalWrite(gpioOnOff, lvlRelayOff);
   delay(500);
-
   // Индикатор включения/отклячения метеостанции
   expander.digitalWrite(gpioMQTT, lvlRelayOn);
   delay(500);
@@ -87,7 +86,7 @@ void setup()
   }
 
   // Создаем слиент Yandex Iot Core
-  MQTClient();
+  //MQTClient();
 
   // Подключаемся к WiFi
   while (!wifi_connect())
@@ -162,11 +161,15 @@ void loop()
       ;
     }
   }
-
-  if (wifi_isConnected())
+  // Контроль подключения к WiFi
+  if (wifi_gpio_status())
     ;
-  if (mqtt_isConnected())
+  // Контроль подключения к MQTT-серверу
+  if (mqtt_gpio_status())
+    ;
+    // Контроль включения метеостанции
+  if (meteo_station_gpio_status())
     ;
 
-  delay(1000);
+  delay(500);
 }

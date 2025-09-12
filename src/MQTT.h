@@ -15,8 +15,13 @@ bool mqtt_connect()
             DEBUG_SERIAL.print(F(" ..."));
         }
 
+        // Привязываем корневой сертификат к клиенту Yandex Iot Core
+        mqttServ.setTrustAnchors(&mqttCert);
+        // Настраиваем MQTT клиент
         mqtt_client.setServer(mqttserver, mqttport);
         mqtt_client.setCallback(mqtt_callback);
+        mqtt_client.setBufferSize(1024);
+        mqtt_client.setKeepAlive(15);
 
         while (!mqtt_client.connected())
         {
@@ -60,7 +65,7 @@ bool mqtt_connect()
     return mqtt_client.connected();
 }
 
-bool mqtt_isConnected()
+bool mqtt_gpio_status()
 {
     bool flag = mqtt_client.connected();
     // индикатор MQTT
@@ -69,23 +74,17 @@ bool mqtt_isConnected()
     return flag;
 }
 
+bool mqtt_isConnected()
+{
+    return mqtt_client.connected();
+}
+
 void mqtt_disconnect()
 {
     if (mqtt_client.connected())
     {
         mqtt_client.disconnect();
     };
-}
-
-void MQTClient()
-{
-    // Привязываем корневой сертификат к клиенту Iot Core
-    mqttServ.setTrustAnchors(&mqttCert);
-    // Настраиваем клиент Iot Core
-    //mqtt_client.setServer(mqttserver, mqttport);
-    //mqtt_client.setCallback(mqtt_callback);
-    mqtt_client.setBufferSize(1024);
-    mqtt_client.setKeepAlive(15);
 }
 
 // Функция обратного вызова при поступлении входящего сообщения от брокера

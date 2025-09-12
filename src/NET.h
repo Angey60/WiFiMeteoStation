@@ -60,6 +60,11 @@ bool wifi_connect()
     return (WiFi.isConnected());
 }
 
+bool wifi_isConnected()
+{
+    return WiFi.isConnected();
+}
+
 void wifi_disconnect()
 {
     if (WiFi.isConnected())
@@ -68,7 +73,7 @@ void wifi_disconnect()
     };
 }
 
-bool wifi_isConnected()
+bool wifi_gpio_status()
 {
     bool flag = WiFi.isConnected();
     // индикатор WiFi

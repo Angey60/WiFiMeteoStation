@@ -233,3 +233,21 @@ String readWeatherData()
 
   return "Sending the data to the MQTT-broker ...";
 }
+
+bool meteo_station_gpio_status()
+{
+    bool flag = lvlRelayFlag;
+    // индикатор включения метеостанции
+    if (flag)
+    {
+      expander.digitalWrite(gpioOnOff, 0x1);
+      delay(500);
+      expander.digitalWrite(gpioOnOff, 0x0);
+    }
+    else
+    {
+      expander.digitalWrite(gpioOnOff, 0x0);
+    }
+    delay(50);
+    return flag;
+}
