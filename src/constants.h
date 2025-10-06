@@ -27,6 +27,7 @@ const bool mqttSensorsRetained = false;
 const char lvlRelayOn = 0x1;
 const char lvlRelayOff = 0x0;
 char lvlRelayFlag = 0x0;
+char mqtt_gpio_triggr_on = 0x0;
 
 bool first_flag = true; // Первая отправка данных после загрузки скетча
 /*
@@ -36,6 +37,7 @@ const char *monthName[12] = {
   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
 };
 */
+
 
 
 

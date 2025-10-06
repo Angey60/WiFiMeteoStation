@@ -23,6 +23,7 @@ QuadDisplay qd(4);
 #include <NET.h>
 #include <MQTT.h>
 #include <LITTLEFS1.h>
+#include <MyMQTT.h>
 
 void setup()
 {
@@ -105,7 +106,13 @@ void setup()
     }
   }
 
-  if (mqtt_isConnected())
+  if (wifi_gpio_status())
+    ;
+
+  if (mqtt_gpio_status())
+    ;
+
+  if (meteo_station_gpio_status())
     ;
 
   // Инициализируем барометр
@@ -137,22 +144,38 @@ void loop()
     {
       if (first_flag == true)
       {
-        first_flag = false;
         readWeatherData();
+        first_flag = false;
       }
       else if (first_flag == false)
       {
-        static unsigned long lastTempRead = 0;
-        if (((millis() - lastTempRead) >= 7 * 60000))
+        static unsigned long weather_data_last_temp_read = 0;
+        if (((millis() - weather_data_last_temp_read) >= 7 * 60000))
         {
-          lastTempRead = millis();
+          weather_data_last_temp_read = millis();
           if (lvlRelayFlag == 0x01) // если метеостанция включена
           {
             readWeatherData();
           }
         };
+        
+        /*static unsigned long meteo_station_last_temp_read = 0;
+        if (((millis() - meteo_station_last_temp_read) >= 1 * 1000))
+        {
+          meteo_station_last_temp_read = millis();
+          if (mqtt_gpio_triggr_on == 0x0) // если индикатор выключен
+          {
+            mqtt_gpio_triggr_on = 0x1; // включаем на 500 мсек
+            *static unsigned long mqtt_gpio_triggr_last_temp_read = 0;
+            if (((millis() - meteo_station_last_temp_read) >= 500))
+            {
+              meteo_station_last_temp_read = millis();
+            }*
+          }
+        }*/
       }
     }
+    delay(500);
   }
   else
   {
@@ -170,6 +193,4 @@ void loop()
     // Контроль включения метеостанции
   if (meteo_station_gpio_status())
     ;
-
-  delay(500);
 }
