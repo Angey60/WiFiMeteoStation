@@ -1,6 +1,6 @@
 #include "MyMQTT.h"
-//include "CERTIFICATES.h"
-
+#include "constants.h"
+#include "mqtt_constants.h"
 
 // Iot Core
 static const char ISRG_Root_X12[] PROGMEM = R"CERT(
@@ -35,9 +35,10 @@ Pj78bnC5yCw8P5YylR45LdxLzLO68unoXOyFz1etGXzszw8lJI9LNubYxk77mK8H
 LpuQKbSbIERsmR+QqQ==
 -----END CERTIFICATE-----
 )CERT";
+
 BearSSL::X509List mqttCert(ISRG_Root_X12);
 BearSSL::WiFiClientSecure mqttServ;
-//PubSubClient mqtt_client(mqttServ);
+//PubSubClient client(mqttServ);
 
 MyMQTT::MyMQTT() {}
 MyMQTT::~MyMQTT() {}
@@ -47,24 +48,150 @@ void MyMQTT::begin()
     client = PubSubClient(mqttServ);
 }
 
-void mqtt_callback(char *topic, byte *payload, unsigned int length) 
-{
-    
-}
-
-void MyMQTT::connect() 
+bool MyMQTT::connect()
 {
     if (!client.connected())
     {
+        if (DEBUG)
+        {
+            DEBUG_SERIAL.print(F("Connecting to Yandex IoT Core as"));
+            DEBUG_SERIAL.print(yandexIoTCoreBrokerId);
+            DEBUG_SERIAL.print(F(" ..."));
+        }
+
         // Привязываем корневой сертификат к клиенту Yandex Iot Core
         mqttServ.setTrustAnchors(&mqttCert);
         // Настраиваем MQTT клиент
         client.setServer(mqttserver, mqttport);
-        client.setCallback(mqtt_callback);
+        //client.setCallback(callback); 
+        client.setCallback(callback); 
         client.setBufferSize(1024);
         client.setKeepAlive(15);
+
+        while (!client.connected())
+        {
+            if (client.connect("angey60_Esp8266Client_broker", yandexIoTCoreBrokerId, mqttpassword))
+            {
+                if (DEBUG)
+                {
+                    DEBUG_SERIAL.println(F(" ok"));
+                }
+            }
+            else
+            {
+                if (DEBUG)
+                {
+                    DEBUG_SERIAL.print(F("."));
+                }
+                delay(500);
+            }
+        }
+
+        if (client.connected())
+        {
+            if (DEBUG)
+            {
+                DEBUG_SERIAL.print(F("Subscribe to: "));
+                DEBUG_SERIAL.print(commands);
+                DEBUG_SERIAL.println(F("\r\n"));
+            }
+            //
+            client.subscribe(commands.c_str());
+        }
+        else
+        {
+            if (DEBUG)
+            {
+                DEBUG_SERIAL.println(F("Connection to the mqtt broker could not be established!"));
+            }
+        }
+    }
+
+    return client.connected();
+    
+}
+
+bool MyMQTT::gpio_status()
+{
+    return client.connected();
+    // индикатор MQTT
+    //expander.digitalWrite(gpioMQTT, flag);
+}
+
+bool MyMQTT::isConnected()
+{
+    return client.connected();
+}
+
+void MyMQTT::disconnect()
+{
+    if (client.connected())
+    {
+        client.disconnect();
+    };
+}
+
+void MyMQTT::run()
+{
+}
+
+// Функция обратного вызова при поступлении входящего сообщения от брокера
+void callback(char *topic, byte *payload, unsigned int length)
+{
+    // Для более корректного сравнения строк приводим их к нижнему регистру и обрезаем пробелы с краев
+    String _payload;
+    for (unsigned int i = 0; i < length; i++)
+    {
+        _payload += String((char)payload[i]);
+    };
+
+    _payload.toLowerCase();
+    _payload.trim();
+
+    // Вывод поступившего сообщения в лог, больше никакого смысла этот блок кода не несет, можно исключить
+    if (DEBUG)
+    {
+        DEBUG_SERIAL.print(F("Message arrived ["));
+        DEBUG_SERIAL.print(topic);
+        DEBUG_SERIAL.print(F("]: "));
+        DEBUG_SERIAL.print(_payload.c_str());
+        DEBUG_SERIAL.println("");
+    }
+
+    int pos = 0;
+    String command = "";
+    for (unsigned int i = 0; i < length; i++)
+    {
+        if ((char)payload[i] == '=')
+            break;
+        command += (char)payload[i];
+        pos++;
+    }
+
+    if (command == "1")
+    {
+        //expander.digitalWrite(gpioMQTT, lvlRelayOn);
+        lvlRelayFlag = 0x1;
+        return;
+    }
+
+    if (command == "0")
+    {
+        //expander.digitalWrite(gpioMQTT, lvlRelayOff);
+        lvlRelayFlag = 0x0;
+        return;
+    }
+
+    if (command == "7") // обновление
+    {
+        // Корректируем дату и время
+        //setClock();
+        // Закрываем соединение с MQTT-брокером
+        //mqtt_disconnect();
+        //delay(1000);
+        //otaStart(firmware_url.c_str());
+        return;
     }
 }
 
-void MyMQTT::run() {}
 

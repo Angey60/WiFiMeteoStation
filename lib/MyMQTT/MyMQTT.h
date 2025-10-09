@@ -8,23 +8,19 @@
 
 class MyMQTT
 {
-
 public:
     MyMQTT();
     ~MyMQTT();
-
     void begin();
     void run();
-    void connect();
-    //void mqtt_callback(char *topic, byte *payload, unsigned int length);
-    
+
+    bool connect();
+    bool isConnected();
+    void disconnect();
+    bool gpio_status();
+
 private:
     PubSubClient client;
-    
-    const char *mqttserver = "mqtt.cloud.yandex.net";
-    const char *yandexIoTCoreBrokerId = "a44fnbeb6ejfibpr07j6";
-    const char *mqttpassword = "Nz;tkfBytrfpbcnf:bpymRjnfEghjuhfvvbcnf@7389";
-    const int mqttport = 8883;
 };
 
 #endif // MyMQTT_H

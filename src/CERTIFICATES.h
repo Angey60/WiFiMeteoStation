@@ -67,7 +67,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
 )CERT";
 
 // Iot Core
-static const char ISRG_Root_X2[] PROGMEM = R"CERT(
+/*static const char ISRG_Root_X2[] PROGMEM = R"CERT(
 -----BEGIN CERTIFICATE-----
 MIIFGTCCAwGgAwIBAgIQJMM7ZIy2SYxCBgK7WcFwnjANBgkqhkiG9w0BAQ0FADAf
 MR0wGwYDVQQDExRZYW5kZXhJbnRlcm5hbFJvb3RDQTAeFw0xMzAyMTExMzQxNDNa
@@ -102,5 +102,5 @@ LpuQKbSbIERsmR+QqQ==
 // Create a list of certificates with the server certificate
 BearSSL::X509List mqttCert(ISRG_Root_X2);
 BearSSL::WiFiClientSecure mqttServ;
-PubSubClient mqtt_client(mqttServ);
+PubSubClient mqtt_client(mqttServ);*/
 

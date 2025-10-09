@@ -21,7 +21,7 @@ QuadDisplay qd(4);
 #include <service_functions.h>
 #include <OTA.h>
 #include <NET.h>
-#include <MQTT.h>
+//include <MQTT.h>
 #include <LITTLEFS1.h>
 #include <MyMQTT.h>
 
