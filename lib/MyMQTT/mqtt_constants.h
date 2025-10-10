@@ -9,3 +9,5 @@ const String commands = String("/yandex-iot-core/" + deviceId + "/commands");
 // Топики для публикации температуры и влажности
 const char *mqttTopicParamerters = "/yandex-iot-core/parameter_values";
 const bool mqttSensorsRetained = false;
+
+#define DEBUG true

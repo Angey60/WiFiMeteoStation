@@ -1,5 +1,5 @@
 #include "MyMQTT.h"
-#include "constants.h"
+//include "constants.h"
 #include "mqtt_constants.h"
 
 // Iot Core
@@ -40,6 +40,8 @@ BearSSL::X509List mqttCert(ISRG_Root_X12);
 BearSSL::WiFiClientSecure mqttServ;
 //PubSubClient client(mqttServ);
 
+void callback(char *topic, byte *payload, unsigned int length);
+
 MyMQTT::MyMQTT() {}
 MyMQTT::~MyMQTT() {}
 
@@ -54,16 +56,15 @@ bool MyMQTT::connect()
     {
         if (DEBUG)
         {
-            DEBUG_SERIAL.print(F("Connecting to Yandex IoT Core as"));
-            DEBUG_SERIAL.print(yandexIoTCoreBrokerId);
-            DEBUG_SERIAL.print(F(" ..."));
+            Serial.print(F("Connecting to Yandex IoT Core as"));
+            Serial.print(yandexIoTCoreBrokerId);
+            Serial.print(F(" ..."));
         }
 
         // Привязываем корневой сертификат к клиенту Yandex Iot Core
         mqttServ.setTrustAnchors(&mqttCert);
         // Настраиваем MQTT клиент
         client.setServer(mqttserver, mqttport);
-        //client.setCallback(callback); 
         client.setCallback(callback); 
         client.setBufferSize(1024);
         client.setKeepAlive(15);
@@ -74,14 +75,14 @@ bool MyMQTT::connect()
             {
                 if (DEBUG)
                 {
-                    DEBUG_SERIAL.println(F(" ok"));
+                    Serial.println(F(" ok"));
                 }
             }
             else
             {
                 if (DEBUG)
                 {
-                    DEBUG_SERIAL.print(F("."));
+                    Serial.print(F("."));
                 }
                 delay(500);
             }
@@ -91,9 +92,9 @@ bool MyMQTT::connect()
         {
             if (DEBUG)
             {
-                DEBUG_SERIAL.print(F("Subscribe to: "));
-                DEBUG_SERIAL.print(commands);
-                DEBUG_SERIAL.println(F("\r\n"));
+                Serial.print(F("Subscribe to: "));
+                Serial.print(commands);
+                Serial.println(F("\r\n"));
             }
             //
             client.subscribe(commands.c_str());
@@ -102,7 +103,7 @@ bool MyMQTT::connect()
         {
             if (DEBUG)
             {
-                DEBUG_SERIAL.println(F("Connection to the mqtt broker could not be established!"));
+                Serial.println(F("Connection to the mqtt broker could not be established!"));
             }
         }
     }
@@ -151,11 +152,11 @@ void callback(char *topic, byte *payload, unsigned int length)
     // Вывод поступившего сообщения в лог, больше никакого смысла этот блок кода не несет, можно исключить
     if (DEBUG)
     {
-        DEBUG_SERIAL.print(F("Message arrived ["));
-        DEBUG_SERIAL.print(topic);
-        DEBUG_SERIAL.print(F("]: "));
-        DEBUG_SERIAL.print(_payload.c_str());
-        DEBUG_SERIAL.println("");
+        Serial.print(F("Message arrived ["));
+        Serial.print(topic);
+        Serial.print(F("]: "));
+        Serial.print(_payload.c_str());
+        Serial.println("");
     }
 
     int pos = 0;
@@ -171,14 +172,14 @@ void callback(char *topic, byte *payload, unsigned int length)
     if (command == "1")
     {
         //expander.digitalWrite(gpioMQTT, lvlRelayOn);
-        lvlRelayFlag = 0x1;
+        //lvlRelayFlag = 0x1;
         return;
     }
 
     if (command == "0")
     {
         //expander.digitalWrite(gpioMQTT, lvlRelayOff);
-        lvlRelayFlag = 0x0;
+        //lvlRelayFlag = 0x0;
         return;
     }
 

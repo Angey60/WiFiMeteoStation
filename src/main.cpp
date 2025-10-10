@@ -70,6 +70,9 @@ void setup()
     DEBUG_SERIAL.flush();
   }
 
+  MyMQTT mqtt_client;
+  mqtt_client.begin();
+
   // Индикатор включения/отклячения метеостанции
   expander.digitalWrite(gpioOnOff, lvlRelayOn);
   delay(500);
@@ -100,7 +103,7 @@ void setup()
     // Корректируем дату и время
     setClock();
     // Подключаемся к Iot Core
-    while (!mqtt_connect())
+    while (!mqtt_client.connect())
     {
       ;
     }
@@ -109,8 +112,8 @@ void setup()
   if (wifi_gpio_status())
     ;
 
-  if (mqtt_gpio_status())
-    ;
+  //if (mqtt_gpio_status())
+  //  ;
 
   if (meteo_station_gpio_status())
     ;
@@ -130,6 +133,7 @@ void setup()
 
 void loop()
 {
+  /*
   if (wifi_isConnected())
   {
     if (!mqtt_client.loop())
@@ -159,7 +163,7 @@ void loop()
           }
         };
         
-        /*static unsigned long meteo_station_last_temp_read = 0;
+        *static unsigned long meteo_station_last_temp_read = 0;
         if (((millis() - meteo_station_last_temp_read) >= 1 * 1000))
         {
           meteo_station_last_temp_read = millis();
@@ -172,7 +176,7 @@ void loop()
               meteo_station_last_temp_read = millis();
             }*
           }
-        }*/
+        }*
       }
     }
     delay(500);
@@ -184,6 +188,8 @@ void loop()
       ;
     }
   }
+  */
+  /*
   // Контроль подключения к WiFi
   if (wifi_gpio_status())
     ;
@@ -193,4 +199,5 @@ void loop()
     // Контроль включения метеостанции
   if (meteo_station_gpio_status())
     ;
+  */
 }

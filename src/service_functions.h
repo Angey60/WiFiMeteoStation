@@ -220,7 +220,7 @@ String readWeatherData()
   // чистим буфер
   deserializeJson(doc, json_buffer_err);
 
-  if (mqtt_client.connected())
+  /*if (mqtt_client.connected())
   {
     mqtt_client.publish(mqttTopicParamerters, json_buffer, mqttSensorsRetained);
     if (DEBUG)
@@ -229,7 +229,7 @@ String readWeatherData()
       //DEBUG_SERIAL.println();
     }
     memset(json_buffer, 0, sizeof(json_buffer)); 
-  }
+  }*/
 
   return "Sending the data to the MQTT-broker ...";
 }
