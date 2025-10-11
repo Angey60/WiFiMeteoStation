@@ -128,7 +128,7 @@ void setClock()
 }
 
 // Чтение температуры и влажности
-String readWeatherData()
+char *readWeatherData()
 {
   // считываем данные с датчика
   float float_temp = 0;
@@ -222,32 +222,38 @@ String readWeatherData()
 
   /*if (mqtt_client.connected())
   {
-    mqtt_client.publish(mqttTopicParamerters, json_buffer, mqttSensorsRetained);
+    mqtt_client.publish(json_buffer);
     if (DEBUG)
     {
       //DEBUG_SERIAL.println(json_buffer);
       //DEBUG_SERIAL.println();
     }
-    memset(json_buffer, 0, sizeof(json_buffer)); 
+    memset(json_buffer, 0, sizeof(json_buffer));
   }*/
 
-  return "Sending the data to the MQTT-broker ...";
+  if (DEBUG)
+  {
+    DEBUG_SERIAL.println(json_buffer);
+    DEBUG_SERIAL.println();
+  }
+
+  return json_buffer;
 }
 
 bool meteo_station_gpio_status()
 {
-    bool flag = lvlRelayFlag;
-    // индикатор включения метеостанции
-    if (flag)
-    {
-      expander.digitalWrite(gpioOnOff, 0x1);
-      delay(500);
-      expander.digitalWrite(gpioOnOff, 0x0);
-    }
-    else
-    {
-      expander.digitalWrite(gpioOnOff, 0x0);
-    }
-    delay(50);
-    return flag;
+  bool flag = mqtt_client.status;
+  // индикатор включения метеостанции
+  if (flag)
+  {
+    expander.digitalWrite(gpioOnOff, 0x1);
+    delay(500);
+    expander.digitalWrite(gpioOnOff, 0x0);
+  }
+  else
+  {
+    expander.digitalWrite(gpioOnOff, 0x0);
+  }
+  delay(50);
+  return flag;
 }

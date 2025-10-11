@@ -1,0 +1,6 @@
+{
+  "mqttserver": "mqtt.cloud.yandex.net",
+  "yandexIoTCoreBrokerId": "a44fnbeb6ejfibpr07j6",
+  "mqttpassword": "Nz;tkfBytrfpbcnf:bpymRjnfEghjuhfvvbcnf@7389",
+  "mqttport": 8883
+}

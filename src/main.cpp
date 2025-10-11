@@ -18,12 +18,20 @@ GpioExpander expander(43);
 QuadDisplay qd(4);
 #include <CERTIFICATES.h>
 #include <constants.h>
-#include <service_functions.h>
 #include <OTA.h>
 #include <NET.h>
 //include <MQTT.h>
 #include <LITTLEFS1.h>
+// WiFi клиент
+#include <MyWiFi.h>
+MyMQTT wifi_client;
+// MQTT клиент
 #include <MyMQTT.h>
+MyMQTT mqtt_client;
+#include <service_functions.h>
+
+// Функция обратного вызова при поступлении входящего сообщения от брокера
+void callback(char *topic, byte *payload, unsigned int length);
 
 void setup()
 {
@@ -69,10 +77,8 @@ void setup()
     DEBUG_SERIAL.println(F("Demo project FOR ESP8266"));
     DEBUG_SERIAL.flush();
   }
-
-  MyMQTT mqtt_client;
+  // Активизируем MQTT клиент
   mqtt_client.begin();
-
   // Индикатор включения/отклячения метеостанции
   expander.digitalWrite(gpioOnOff, lvlRelayOn);
   delay(500);
@@ -88,10 +94,6 @@ void setup()
   {
     DEBUG_SERIAL.println(F("\r\n"));
   }
-
-  // Создаем слиент Yandex Iot Core
-  //MQTClient();
-
   // Подключаемся к WiFi
   while (!wifi_connect())
   {
@@ -107,6 +109,7 @@ void setup()
     {
       ;
     }
+    mqtt_client.client.setCallback(callback);
   }
 
   if (wifi_gpio_status())
@@ -133,37 +136,43 @@ void setup()
 
 void loop()
 {
-  /*
   if (wifi_isConnected())
   {
     if (!mqtt_client.loop())
     {
       // Подключаемся к Iot Core
-      while (!mqtt_connect())
+      while (!mqtt_client.connect())
       {
         ;
       }
+      mqtt_client.client.setCallback(callback);
     }
     else
     {
       if (first_flag == true)
       {
-        readWeatherData();
+        if (mqtt_client.isConnected())
+        {
+          mqtt_client.publish(readWeatherData());
+        }
         first_flag = false;
       }
       else if (first_flag == false)
       {
         static unsigned long weather_data_last_temp_read = 0;
-        if (((millis() - weather_data_last_temp_read) >= 7 * 60000))
+        if (((millis() - weather_data_last_temp_read) >= 3 * 60000))
         {
           weather_data_last_temp_read = millis();
-          if (lvlRelayFlag == 0x01) // если метеостанция включена
+          if (mqtt_client.status == 0x01) // если метеостанция включена
           {
-            readWeatherData();
+            if (mqtt_client.isConnected())
+            {
+              mqtt_client.publish(readWeatherData());
+            }
           }
         };
         
-        *static unsigned long meteo_station_last_temp_read = 0;
+        /*static unsigned long meteo_station_last_temp_read = 0;
         if (((millis() - meteo_station_last_temp_read) >= 1 * 1000))
         {
           meteo_station_last_temp_read = millis();
@@ -176,7 +185,7 @@ void loop()
               meteo_station_last_temp_read = millis();
             }*
           }
-        }*
+        }*/
       }
     }
     delay(500);
@@ -188,16 +197,72 @@ void loop()
       ;
     }
   }
-  */
-  /*
   // Контроль подключения к WiFi
   if (wifi_gpio_status())
     ;
   // Контроль подключения к MQTT-серверу
-  if (mqtt_gpio_status())
-    ;
+  expander.digitalWrite(gpioMQTT, mqtt_client.gpio_status());
+  
     // Контроль включения метеостанции
   if (meteo_station_gpio_status())
     ;
-  */
+}
+
+// Функция обратного вызова при поступлении входящего сообщения от брокера
+void callback(char *topic, byte *payload, unsigned int length)
+{
+    // Для более корректного сравнения строк приводим их к нижнему регистру и обрезаем пробелы с краев
+    String _payload;
+    for (unsigned int i = 0; i < length; i++)
+    {
+        _payload += String((char)payload[i]);
+    };
+
+    _payload.toLowerCase();
+    _payload.trim();
+
+    // Вывод поступившего сообщения в лог, больше никакого смысла этот блок кода не несет, можно исключить
+    if (DEBUG)
+    {
+        DEBUG_SERIAL.print(F("Message arrived ["));
+        DEBUG_SERIAL.print(topic);
+        DEBUG_SERIAL.print(F("]: "));
+        DEBUG_SERIAL.print(_payload.c_str());
+        DEBUG_SERIAL.println("");
+    }
+
+    int pos = 0;
+    String command = "";
+    for (unsigned int i = 0; i < length; i++)
+    {
+        if ((char)payload[i] == '=')
+            break;
+        command += (char)payload[i];
+        pos++;
+    }
+
+    if (command == "1")
+    {
+        expander.digitalWrite(gpioMQTT, lvlRelayOn);
+        mqtt_client.status = 0x1;
+        return;
+    }
+
+    if (command == "0")
+    {
+        expander.digitalWrite(gpioMQTT, lvlRelayOff);
+        mqtt_client.status = 0x0;
+        return;
+    }
+
+    if (command == "7") // обновление
+    {
+        // Корректируем дату и время
+        setClock();
+        // Закрываем соединение с MQTT-брокером
+        mqtt_client.disConnect();
+        delay(1000);
+        otaStart(firmware_url.c_str());
+        return;
+    }
 }

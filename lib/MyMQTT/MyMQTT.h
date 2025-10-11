@@ -16,11 +16,21 @@ public:
 
     bool connect();
     bool isConnected();
-    void disconnect();
     bool gpio_status();
+    bool loop();
 
-private:
+    void disConnect();
+    void publish(const char *json_buffer);
+
+    // Статус метеостанции
+    char status = 0x0;
+    // Указатель на MQTT-клиента
     PubSubClient client;
+
+protected:
+    
+private:
+    //std::function<void(char*, uint8_t*, unsigned int)> cc;
 };
 
 #endif // MyMQTT_H

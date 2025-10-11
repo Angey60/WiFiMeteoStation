@@ -10,4 +10,6 @@ const String commands = String("/yandex-iot-core/" + deviceId + "/commands");
 const char *mqttTopicParamerters = "/yandex-iot-core/parameter_values";
 const bool mqttSensorsRetained = false;
 
+#define DEBUG_SERIAL Serial
+#define DEBUG_SERIAL_BAUDRATE 115200
 #define DEBUG true
