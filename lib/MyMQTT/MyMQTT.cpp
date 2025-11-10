@@ -57,6 +57,10 @@ bool MyMQTT::connect()
             DEBUG_SERIAL.print(F(" ..."));
         }
 
+        /*
+        не существует подходящего конструктора для преобразования из "void (char *, uint8_t *, unsigned int)" (aka "void (char *, unsigned char *, unsigned int)") в "std::function<void (char *, uint8_t *, unsigned int)>" (aka "std::function<void (char *, unsigned char *, unsigned int)>")C/C++(415)
+        */
+
         // Привязываем корневой сертификат к клиенту Yandex Iot Core
         mqttServ.setTrustAnchors(&mqttCert);
         // Настраиваем MQTT клиент
@@ -141,4 +145,6 @@ void MyMQTT::run()
 {
 }
 
-//void MyMQTT::cc(char*, uint8_t*, unsigned int){}
+//std::function<void(char*, uint8_t*, unsigned int)> yourFunction = [=](char* topic, uint8_t* payload, unsigned int length) {
+//    this->cc(topic, payload, length);
+//}

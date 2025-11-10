@@ -24,12 +24,14 @@ QuadDisplay qd(4);
 #include <LITTLEFS1.h>
 // WiFi клиент
 #include <MyWiFi.h>
-MyMQTT wifi_client;
+MyWiFi wifi_client;
 // MQTT клиент
 #include <MyMQTT.h>
 MyMQTT mqtt_client;
+#include <MqttClass.h>
+MqttClass mqttClass;
 #include <service_functions.h>
-
+//
 // Функция обратного вызова при поступлении входящего сообщения от брокера
 void callback(char *topic, byte *payload, unsigned int length);
 

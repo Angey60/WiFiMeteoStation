@@ -31,6 +31,7 @@ protected:
     
 private:
     //std::function<void(char*, uint8_t*, unsigned int)> cc;
+    void cc(char*, uint8_t*, unsigned int);
 };
 
 #endif // MyMQTT_H
