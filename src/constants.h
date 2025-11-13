@@ -1,6 +1,6 @@
 // Параметры подключения к WiFi
-const char *SSID = "MTSRouter_B769";
-const char *PASS = "98797899";
+//const char *SSID = "MTSRouter_B769";
+//const char *PASS = "98797899";
 
 #define DEBUG_SERIAL Serial
 #define DEBUG_SERIAL_BAUDRATE 115200
@@ -24,8 +24,8 @@ const int gpioMQTT = 0; // синий индикатор
 //const char *mqttTopicParamerters = "/yandex-iot-core/parameter_values";
 //const bool mqttSensorsRetained = false;
 
-const char lvlRelayOn = 0x1;
-const char lvlRelayOff = 0x0;
+const char gpioSignalOn = 0x1;
+const char gpioSignalOff = 0x0;
 //char lvlRelayFlag = 0x0;
 //char mqtt_gpio_triggr_on = 0x0;
 

@@ -4,6 +4,7 @@
 #include <ESP8266HTTPClient.h>
 #include <WiFiClientSecureBearSSL.h>
 #include <ESP8266httpUpdate.h>
+//include "constants.h"
 
 String firmware_url = "https://angey60meteo.ru/firmware.bin";
 

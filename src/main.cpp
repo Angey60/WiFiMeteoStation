@@ -19,7 +19,7 @@ QuadDisplay qd(4);
 #include <CERTIFICATES.h>
 #include <constants.h>
 #include <OTA.h>
-#include <NET.h>
+//#include <NET.h>
 //include <MQTT.h>
 #include <LITTLEFS1.h>
 // WiFi клиент
@@ -28,8 +28,6 @@ MyWiFi wifi_client;
 // MQTT клиент
 #include <MyMQTT.h>
 MyMQTT mqtt_client;
-#include <MqttClass.h>
-MqttClass mqttClass;
 #include <service_functions.h>
 //
 // Функция обратного вызова при поступлении входящего сообщения от брокера
@@ -50,10 +48,10 @@ void setup()
   pinMode(gpioWiFi, OUTPUT);
   // зеленая лампочка On/Off метеостанции
   expander.pinMode(gpioOnOff, OUTPUT);
-  expander.digitalWrite(gpioOnOff, lvlRelayOff);
+  expander.digitalWrite(gpioOnOff, gpioSignalOff);
   // синяя лампочка On/Off MQTT !!!
   expander.pinMode(gpioMQTT, OUTPUT);
-  expander.digitalWrite(gpioMQTT, lvlRelayOff);
+  expander.digitalWrite(gpioMQTT, gpioSignalOff);
   // Инициализируем метеостанцию
   SHT3x.begin();
 
@@ -79,25 +77,29 @@ void setup()
     DEBUG_SERIAL.println(F("Demo project FOR ESP8266"));
     DEBUG_SERIAL.flush();
   }
-  // Активизируем MQTT клиент
-  mqtt_client.begin();
+  
   // Индикатор включения/отклячения метеостанции
-  expander.digitalWrite(gpioOnOff, lvlRelayOn);
+  expander.digitalWrite(gpioOnOff, gpioSignalOn);
   delay(500);
-  expander.digitalWrite(gpioOnOff, lvlRelayOff);
+  expander.digitalWrite(gpioOnOff, gpioSignalOff);
   delay(500);
   // Индикатор включения/отклячения метеостанции
-  expander.digitalWrite(gpioMQTT, lvlRelayOn);
+  expander.digitalWrite(gpioMQTT, gpioSignalOn);
   delay(500);
-  expander.digitalWrite(gpioMQTT, lvlRelayOff);
+  expander.digitalWrite(gpioMQTT, gpioSignalOff);
   delay(500);
 
+  // Активизируем MiFi клиент
+  wifi_client.begin();
+  // Активизируем WQTT клиент
+  mqtt_client.begin();
+  
   if (DEBUG)
   {
     DEBUG_SERIAL.println(F("\r\n"));
   }
   // Подключаемся к WiFi
-  while (!wifi_connect())
+  /*hile (!wifi_connect())
   {
     //
   }
@@ -118,7 +120,7 @@ void setup()
     ;
 
   //if (mqtt_gpio_status())
-  //  ;
+  //  ;*/
 
   if (meteo_station_gpio_status())
     ;
@@ -138,7 +140,7 @@ void setup()
 
 void loop()
 {
-  if (wifi_isConnected())
+  /*if (wifi_isConnected())
   {
     if (!mqtt_client.loop())
     {
@@ -174,7 +176,7 @@ void loop()
           }
         };
         
-        /*static unsigned long meteo_station_last_temp_read = 0;
+        *static unsigned long meteo_station_last_temp_read = 0;
         if (((millis() - meteo_station_last_temp_read) >= 1 * 1000))
         {
           meteo_station_last_temp_read = millis();
@@ -187,7 +189,7 @@ void loop()
               meteo_station_last_temp_read = millis();
             }*
           }
-        }*/
+        }*
       }
     }
     delay(500);
@@ -207,7 +209,7 @@ void loop()
   
     // Контроль включения метеостанции
   if (meteo_station_gpio_status())
-    ;
+    ; */
 }
 
 // Функция обратного вызова при поступлении входящего сообщения от брокера
@@ -245,14 +247,14 @@ void callback(char *topic, byte *payload, unsigned int length)
 
     if (command == "1")
     {
-        expander.digitalWrite(gpioMQTT, lvlRelayOn);
+        expander.digitalWrite(gpioMQTT, gpioSignalOn);
         mqtt_client.status = 0x1;
         return;
     }
 
     if (command == "0")
     {
-        expander.digitalWrite(gpioMQTT, lvlRelayOff);
+        expander.digitalWrite(gpioMQTT, gpioSignalOff);
         mqtt_client.status = 0x0;
         return;
     }
