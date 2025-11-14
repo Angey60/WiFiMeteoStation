@@ -28,6 +28,7 @@ MyWiFi wifi_client;
 // MQTT клиент
 #include <MyMQTT.h>
 MyMQTT mqtt_client;
+//
 #include <service_functions.h>
 //
 // Функция обратного вызова при поступлении входящего сообщения от брокера
@@ -89,35 +90,35 @@ void setup()
   expander.digitalWrite(gpioMQTT, gpioSignalOff);
   delay(500);
 
-  // Активизируем MiFi клиент
-  wifi_client.begin();
   // Активизируем WQTT клиент
   mqtt_client.begin();
-  
+
+  wifi_client.disconnect();
   if (DEBUG)
   {
     DEBUG_SERIAL.println(F("\r\n"));
   }
   // Подключаемся к WiFi
-  /*hile (!wifi_connect())
+  while (!wifi_client.connect())
   {
     //
   }
 
-  if (wifi_isConnected())
+  if (wifi_client.isConnected())
   {
     // Корректируем дату и время
     setClock();
     // Подключаемся к Iot Core
-    while (!mqtt_client.connect())
+    /*while (!mqtt_client.connect())
     {
       ;
     }
-    mqtt_client.client.setCallback(callback);
+    mqtt_client.setCallback(callback);*/
   }
 
-  if (wifi_gpio_status())
-    ;
+  //if (wifi_gpio_status())
+    //;
+  expander.digitalWrite(gpioMQTT, mqtt_client.mqtt_gpio_status());
 
   //if (mqtt_gpio_status())
   //  ;*/

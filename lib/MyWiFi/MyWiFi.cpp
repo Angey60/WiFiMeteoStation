@@ -21,54 +21,51 @@ bool MyWiFi::connect()
     // Если подключение активно, то просто выходим и возвращаем true
     if (!WiFi.isConnected())
     {
-        // ... иначе пробуем подключиться к сети
-        if (DEBUG)
+        if (WIFI_DEBUG)
         {
-            DEBUG_SERIAL.print(F("Connecting to WiFi AP "));
-            DEBUG_SERIAL.print(SSID);
-            DEBUG_SERIAL.print(F(" "));
+            Serial.print(F("Connecting to WiFi AP "));
+            Serial.print(SSID);
+            Serial.println(F("\r\n"));
         }
-        // Настраиваем WiFi
-        WiFi.mode(WIFI_STA);
-        WiFi.begin(SSID, PASS);
-        //
-        digitalWrite(gpioWiFi, gpioSignalOn);
-        //
-        // И ждем подключения 60 циклов по 0,5 сек - это 30 секунд
-        int i = 0;
-        while (!WiFi.isConnected())
-        {
-            i++;
-            if (i > 60)
-            {
-                // Если в течение этого времени не удалось подключиться - выходим с false
-                // Бескорнечно ждать подключения опасно - если подключение было разорвано во время работы
-                // нужно всё равно "обслуживать" реле и датчики, иначе может случиться беда
-                if (DEBUG)
-                {
-                    DEBUG_SERIAL.println();
-                    DEBUG_SERIAL.println(F("Connection failed!"));
-                }
-                return false;
-            };
-            if (DEBUG)
-            {
-                DEBUG_SERIAL.print(F("."));
-            }
-            delay(500);
-        };
 
-        if (WiFi.isConnected())
+        // Настраиваем WiFi
+        begin();
+
+        while (--tries && WiFi.status() != WL_CONNECTED)
         {
-            // Подключение успешно установлено
-            if (DEBUG)
+            delay(1000);
+
+            if (WIFI_DEBUG)
             {
-                DEBUG_SERIAL.println(F(" ок"));
-                DEBUG_SERIAL.print(F("WiFi connected, obtained IP address: "));
-                DEBUG_SERIAL.println(WiFi.localIP());
+                Serial.print(F("."));
             }
-            digitalWrite(gpioWiFi, gpioSignalOff);
         }
+
+        Serial.println(F("\r\n"));
+
+        if (WiFi.status() != WL_CONNECTED)
+        {
+            WiFi.disconnect();
+
+            if (WIFI_DEBUG)
+            {
+                Serial.println(F("Non Connecting to WiFi ..."));
+                Serial.println(F("\r\n"));
+            }
+        }
+        else
+        {
+            if (WIFI_DEBUG)
+            {
+                Serial.print(F("Connecting to WiFi AP "));
+                Serial.println(SSID);
+                Serial.print(F("IP address: "));
+                Serial.println(WiFi.localIP());
+                Serial.println(F("\r\n"));
+            }
+        }
+
+        return WiFi.isConnected();
     }
 
     return (WiFi.isConnected());
@@ -81,8 +78,9 @@ bool MyWiFi::isConnected()
 
 void MyWiFi::disconnect()
 {
-    if (WiFi.isConnected())
+    while (WiFi.status() == WL_CONNECTED)
     {
         WiFi.disconnect();
-    };
+        delay(100);
+    }
 }

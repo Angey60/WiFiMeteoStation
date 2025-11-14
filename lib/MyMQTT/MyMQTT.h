@@ -11,6 +11,7 @@ class MyMQTT
 public:
     MyMQTT();
     ~MyMQTT();
+
     void begin();
     void run();
 
@@ -21,17 +22,20 @@ public:
 
     void disConnect();
     void publish(const char *json_buffer);
+    void setCallback(std::function<void(char*, uint8_t*, unsigned int)> callback);
 
     // Статус метеостанции
     char status = 0x0;
-    // Указатель на MQTT-клиента
-    PubSubClient client;
+
+    bool mqtt_gpio_status();
 
 protected:
     
 private:
     //std::function<void(char*, uint8_t*, unsigned int)> cc;
-    void cc(char*, uint8_t*, unsigned int);
+    //void cc(char*, uint8_t*, unsigned int);
+    // Указатель на MQTT-клиента
+    PubSubClient client;
 };
 
 #endif // MyMQTT_H

@@ -5,8 +5,6 @@
 #include <avr/pgmspace.h>
 #include <ESP8266WiFi.h>
 
-//include <constants.h>
-
 class MyWiFi
 {
 public:
@@ -15,16 +13,13 @@ public:
     void begin();
     void run();
 
-protected:
-    // Подключение к WiFi точке доступа
+    //  Подключение к WiFi точке доступа
     bool connect();
     bool isConnected();
     void disconnect();
-    
+
 private:
-    //std::function<void(char*, uint8_t*, unsigned int)> cc;
-    const char *SSID = "MTSRouter_B769";
-    const char *PASS = "98797899";
+    byte tries = 15; // Попыткок подключения к точке доступа
 };
 
 #endif // MyWiFi_H

@@ -46,26 +46,30 @@ void MyMQTT::begin()
     client = PubSubClient(mqttServ);
 }
 
+void MyMQTT::setCallback(std::function<void(char*, uint8_t*, unsigned int)> callback)
+{
+    client.setCallback(callback);
+}
+
+bool MyMQTT::mqtt_gpio_status()
+{
+    return client.connected();
+}
+
 bool MyMQTT::connect()
 {
     if (!client.connected())
     {
-        if (DEBUG)
+        if (MQTT_DEBUG)
         {
-            DEBUG_SERIAL.print(F("Connecting to Yandex IoT Core as"));
-            DEBUG_SERIAL.print(yandexIoTCoreBrokerId);
-            DEBUG_SERIAL.print(F(" ..."));
+            Serial.print(F("Connecting to Yandex IoT Core as"));
+            Serial.print(yandexIoTCoreBrokerId);
+            Serial.print(F(" ..."));
         }
-
-        /*
-        не существует подходящего конструктора для преобразования из "void (char *, uint8_t *, unsigned int)" (aka "void (char *, unsigned char *, unsigned int)") в "std::function<void (char *, uint8_t *, unsigned int)>" (aka "std::function<void (char *, unsigned char *, unsigned int)>")C/C++(415)
-        */
-
         // Привязываем корневой сертификат к клиенту Yandex Iot Core
         mqttServ.setTrustAnchors(&mqttCert);
         // Настраиваем MQTT клиент
         client.setServer(mqttserver, mqttport);
-        //client.setCallback(cc);
         client.setBufferSize(1024);
         client.setKeepAlive(15);
 
@@ -73,16 +77,16 @@ bool MyMQTT::connect()
         {
             if (client.connect("angey60_Esp8266Client_broker", yandexIoTCoreBrokerId, mqttpassword))
             {
-                if (DEBUG)
+                if (MQTT_DEBUG)
                 {
-                    DEBUG_SERIAL.println(F(" ok"));
+                    Serial.println(F(" ok"));
                 }
             }
             else
             {
-                if (DEBUG)
+                if (MQTT_DEBUG)
                 {
-                    DEBUG_SERIAL.print(F("."));
+                    Serial.print(F("."));
                 }
                 delay(500);
             }
@@ -90,20 +94,20 @@ bool MyMQTT::connect()
 
         if (client.connected())
         {
-            if (DEBUG)
+            if (MQTT_DEBUG)
             {
-                DEBUG_SERIAL.print(F("Subscribe to: "));
-                DEBUG_SERIAL.print(commands);
-                DEBUG_SERIAL.println(F("\r\n"));
+                Serial.print(F("Subscribe to: "));
+                Serial.print(commands);
+                Serial.println(F("\r\n"));
             }
             //
             client.subscribe(commands.c_str());
         }
         else
         {
-            if (DEBUG)
+            if (MQTT_DEBUG)
             {
-                DEBUG_SERIAL.println(F("Connection to the mqtt broker could not be established!"));
+                Serial.println(F("Connection to the mqtt broker could not be established!"));
             }
         }
     }
@@ -114,8 +118,6 @@ bool MyMQTT::connect()
 bool MyMQTT::gpio_status()
 {
     return client.connected();
-    // индикатор MQTT
-    // expander.digitalWrite(gpioMQTT, flag);
 }
 
 bool MyMQTT::isConnected()
@@ -144,7 +146,3 @@ bool MyMQTT::loop()
 void MyMQTT::run()
 {
 }
-
-//std::function<void(char*, uint8_t*, unsigned int)> yourFunction = [=](char* topic, uint8_t* payload, unsigned int length) {
-//    this->cc(topic, payload, length);
-//}
