@@ -32,10 +32,7 @@ public:
 protected:
     
 private:
-    //std::function<void(char*, uint8_t*, unsigned int)> cc;
-    //void cc(char*, uint8_t*, unsigned int);
-    // Указатель на MQTT-клиента
-    PubSubClient client;
+    
 };
 
 #endif // MyMQTT_H

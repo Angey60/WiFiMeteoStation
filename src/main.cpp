@@ -16,11 +16,8 @@ GpioExpander expander(43);
 #include <QuadDisplay2.h>
 // создаём объект класса QuadDisplay и передаём номер пина CS
 QuadDisplay qd(4);
-#include <CERTIFICATES.h>
+//include <CERTIFICATES.h>
 #include <constants.h>
-#include <OTA.h>
-//#include <NET.h>
-//include <MQTT.h>
 #include <LITTLEFS1.h>
 // WiFi клиент
 #include <MyWiFi.h>
@@ -28,6 +25,8 @@ MyWiFi wifi_client;
 // MQTT клиент
 #include <MyMQTT.h>
 MyMQTT mqtt_client;
+#include <MyOTA.h>
+MyOTA ota_client;
 //
 #include <service_functions.h>
 //
@@ -90,9 +89,6 @@ void setup()
   expander.digitalWrite(gpioMQTT, gpioSignalOff);
   delay(500);
 
-  // Активизируем WQTT клиент
-  mqtt_client.begin();
-
   wifi_client.disconnect();
   if (DEBUG)
   {
@@ -109,22 +105,24 @@ void setup()
     // Корректируем дату и время
     setClock();
     // Подключаемся к Iot Core
-    /*while (!mqtt_client.connect())
+    // Активизируем WQTT клиент
+    mqtt_client.begin();
+    while (!mqtt_client.connect())
     {
       ;
     }
-    mqtt_client.setCallback(callback);*/
+    mqtt_client.setCallback(callback);
   }
 
   //if (wifi_gpio_status())
     //;
-  expander.digitalWrite(gpioMQTT, mqtt_client.mqtt_gpio_status());
+  //expander.digitalWrite(gpioMQTT, mqtt_client.mqtt_gpio_status());
 
   //if (mqtt_gpio_status())
   //  ;*/
 
-  if (meteo_station_gpio_status())
-    ;
+  //if (meteo_station_gpio_status())
+  //  ;
 
   // Инициализируем барометр
   barometer.begin();
@@ -134,14 +132,19 @@ void setup()
 
   if (DEBUG)
   {
+    DEBUG_SERIAL.println();
     DEBUG_SERIAL.println("Start ...");
     DEBUG_SERIAL.println();
+
+    DEBUG_SERIAL.println();
+    DEBUG_SERIAL.print("ESP Board MAC Address:  ");
+    DEBUG_SERIAL.println(WiFi.macAddress());
   }
 }
 
 void loop()
 {
-  /*if (wifi_isConnected())
+  if (wifi_client.isConnected())
   {
     if (!mqtt_client.loop())
     {
@@ -150,7 +153,7 @@ void loop()
       {
         ;
       }
-      mqtt_client.client.setCallback(callback);
+      mqtt_client.setCallback(callback);
     }
     else
     {
@@ -165,7 +168,7 @@ void loop()
       else if (first_flag == false)
       {
         static unsigned long weather_data_last_temp_read = 0;
-        if (((millis() - weather_data_last_temp_read) >= 3 * 60000))
+        if (((millis() - weather_data_last_temp_read) >= 7 * 60000))
         {
           weather_data_last_temp_read = millis();
           if (mqtt_client.status == 0x01) // если метеостанция включена
@@ -177,7 +180,7 @@ void loop()
           }
         };
         
-        *static unsigned long meteo_station_last_temp_read = 0;
+        /*static unsigned long meteo_station_last_temp_read = 0;
         if (((millis() - meteo_station_last_temp_read) >= 1 * 1000))
         {
           meteo_station_last_temp_read = millis();
@@ -190,27 +193,27 @@ void loop()
               meteo_station_last_temp_read = millis();
             }*
           }
-        }*
+        }*/
       }
     }
     delay(500);
   }
   else
   {
-    while (!wifi_connect())
+    while (!wifi_client.connect())
     {
       ;
     }
   }
   // Контроль подключения к WiFi
-  if (wifi_gpio_status())
-    ;
+  //if (wifi_gpio_status())
+   // ;
   // Контроль подключения к MQTT-серверу
   expander.digitalWrite(gpioMQTT, mqtt_client.gpio_status());
   
     // Контроль включения метеостанции
   if (meteo_station_gpio_status())
-    ; */
+    ; 
 }
 
 // Функция обратного вызова при поступлении входящего сообщения от брокера
@@ -267,7 +270,8 @@ void callback(char *topic, byte *payload, unsigned int length)
         // Закрываем соединение с MQTT-брокером
         mqtt_client.disConnect();
         delay(1000);
-        otaStart(firmware_url.c_str());
+        //otaStart(firmware_url.c_str());
+        ota_client.begin();
         return;
     }
 }

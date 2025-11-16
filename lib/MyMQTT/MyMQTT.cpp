@@ -37,13 +37,14 @@ LpuQKbSbIERsmR+QqQ==
 
 BearSSL::X509List mqttCert(ISRG_Root_X12);
 BearSSL::WiFiClientSecure mqttServ;
+PubSubClient client(mqttServ);
 
 MyMQTT::MyMQTT() {}
 MyMQTT::~MyMQTT() {}
 
 void MyMQTT::begin()
 {
-    client = PubSubClient(mqttServ);
+    //
 }
 
 void MyMQTT::setCallback(std::function<void(char*, uint8_t*, unsigned int)> callback)
@@ -98,7 +99,7 @@ bool MyMQTT::connect()
             {
                 Serial.print(F("Subscribe to: "));
                 Serial.print(commands);
-                Serial.println(F("\r\n"));
+                Serial.println();
             }
             //
             client.subscribe(commands.c_str());

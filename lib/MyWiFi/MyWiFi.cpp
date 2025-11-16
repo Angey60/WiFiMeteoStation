@@ -25,7 +25,7 @@ bool MyWiFi::connect()
         {
             Serial.print(F("Connecting to WiFi AP "));
             Serial.print(SSID);
-            Serial.println(F("\r\n"));
+            Serial.println();
         }
 
         // Настраиваем WiFi
@@ -50,7 +50,7 @@ bool MyWiFi::connect()
             if (WIFI_DEBUG)
             {
                 Serial.println(F("Non Connecting to WiFi ..."));
-                Serial.println(F("\r\n"));
+                Serial.println();
             }
         }
         else
@@ -61,7 +61,7 @@ bool MyWiFi::connect()
                 Serial.println(SSID);
                 Serial.print(F("IP address: "));
                 Serial.println(WiFi.localIP());
-                Serial.println(F("\r\n"));
+                Serial.println();
             }
         }
 
