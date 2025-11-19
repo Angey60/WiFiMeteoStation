@@ -33,6 +33,16 @@ String ConvertCharToString(const char ch[])
   return result;
 }
 
+String mac_address(void)
+{
+  uint8_t mac[6];
+  char macStr[18] = {0};
+  wifi_get_macaddr(STATION_IF, mac);
+
+  sprintf(macStr, "%02X-%02X-%02X-%02X-%02X-%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+  return String(macStr);
+}
+
 void initClock()
 {
   // настраиваем часы реального времени

@@ -84,3 +84,8 @@ void MyWiFi::disconnect()
         delay(100);
     }
 }
+
+bool MyWiFi::gpio_status()
+{
+    return WiFi.isConnected();
+}

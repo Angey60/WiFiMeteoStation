@@ -16,7 +16,9 @@ public:
     //  Подключение к WiFi точке доступа
     bool connect();
     bool isConnected();
+    bool gpio_status();
     void disconnect();
+
 
 private:
     byte tries = 15; // Попыткок подключения к точке доступа

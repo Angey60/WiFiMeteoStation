@@ -46,6 +46,11 @@ MyOTA::~MyOTA() {}
 
 String linkOTA = "https://angey60meteo.ru/firmware.bin";
 
+void update_started();
+void update_finished();
+void update_progress(int cur, int total);
+void update_error(int err);
+
 void MyOTA::begin()
 {
     // Привязываем корневой сертификат к клиенту OTA Server
@@ -59,10 +64,10 @@ void MyOTA::begin()
     }
     
     // Add optional callback notifiers
-    //ESPhttpUpdate.onStart(update_started);
-    //ESPhttpUpdate.onEnd(update_finished);
-    //ESPhttpUpdate.onProgress(update_progress);
-    //ESPhttpUpdate.onError(update_error);
+    ESPhttpUpdate.onStart(update_started);
+    ESPhttpUpdate.onEnd(update_finished);
+    ESPhttpUpdate.onProgress(update_progress);
+    ESPhttpUpdate.onError(update_error);
 
     // Запускаем обновление
     t_httpUpdate_return ret = ESPhttpUpdate.update(otaServ, linkOTA);
