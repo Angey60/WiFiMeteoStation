@@ -27,6 +27,8 @@ MyWiFi wifi_client;
 MyMQTT mqtt_client;
 #include <MyOTA.h>
 MyOTA ota_client;
+#include <MyClock.h>
+MyClock clock_client;
 //
 #include <service_functions.h>
 //
@@ -38,7 +40,8 @@ void setup()
   // put your setup code here, to run once:
   Wire.begin();
   // Инициализируем бортовые часы
-  initClock();
+  //initClock();
+  clock_client.begin();
   //  Инициализируем объект display
   qd.begin();
   // Инициализируем объект expander.
@@ -103,7 +106,7 @@ void setup()
   if (wifi_client.isConnected())
   {
     // Корректируем дату и время
-    setClock();
+    clock_client.setClock();
     // Подключаемся к Iot Core
     // Активизируем WQTT клиент
     mqtt_client.begin();
@@ -176,21 +179,6 @@ void loop()
             }
           }
         };
-
-        /*static unsigned long meteo_station_last_temp_read = 0;
-        if (((millis() - meteo_station_last_temp_read) >= 1 * 1000))
-        {
-          meteo_station_last_temp_read = millis();
-          if (mqtt_gpio_triggr_on == 0x0) // если индикатор выключен
-          {
-            mqtt_gpio_triggr_on = 0x1; // включаем на 500 мсек
-            *static unsigned long mqtt_gpio_triggr_last_temp_read = 0;
-            if (((millis() - meteo_station_last_temp_read) >= 500))
-            {
-              meteo_station_last_temp_read = millis();
-            }*
-          }
-        }*/
       }
     }
     delay(500);
@@ -262,11 +250,10 @@ void callback(char *topic, byte *payload, unsigned int length)
   if (command == "7") // обновление
   {
     // Корректируем дату и время
-    setClock();
+    clock_client.setClock();
     // Закрываем соединение с MQTT-брокером
     mqtt_client.disConnect();
     delay(1000);
-    // otaStart(firmware_url.c_str());
     ota_client.begin();
     return;
   }

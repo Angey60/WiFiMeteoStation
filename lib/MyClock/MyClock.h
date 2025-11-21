@@ -16,6 +16,8 @@ public:
     void begin();
     void run();
 
+    void setClock();
+
 protected:
 
 private:

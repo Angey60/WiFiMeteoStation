@@ -7,9 +7,9 @@ char json_buffer[200] = {0};
 char json_buffer_err[50] = {0};
 #define BUFFER_LENGTH 128
 char buffer[BUFFER_LENGTH];
-#include <RTClib.h>
+//include <RTClib.h>
 // создаём объект для работы с часами реального времени
-RTC_DS1307 rtc;
+//RTC_DS1307 rtc;
 // библиотека для работы с метео сенсором
 #include <TroykaMeteoSensor.h>
 // библиотека для работы с часами реального времени
@@ -39,10 +39,10 @@ String mac_address(void)
   char macStr[18] = {0};
   wifi_get_macaddr(STATION_IF, mac);
 
-  sprintf(macStr, "%02X-%02X-%02X-%02X-%02X-%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+  sprintf(macStr, "%02X%02X%02X%02X%02X%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
   return String(macStr);
 }
-
+/*
 void initClock()
 {
   // настраиваем часы реального времени
@@ -135,7 +135,7 @@ void setClock()
     DEBUG_SERIAL.print(F(":"));
     DEBUG_SERIAL.println(now1.second(), DEC);
   }
-}
+}*/
 
 // Чтение температуры и влажности
 char *readWeatherData()
