@@ -7,17 +7,13 @@ char json_buffer[200] = {0};
 char json_buffer_err[50] = {0};
 #define BUFFER_LENGTH 128
 char buffer[BUFFER_LENGTH];
-//include <RTClib.h>
-// создаём объект для работы с часами реального времени
-//RTC_DS1307 rtc;
+
 // библиотека для работы с метео сенсором
 #include <TroykaMeteoSensor.h>
 // библиотека для работы с часами реального времени
 // создаём объект для работы с датчиком
 TroykaMeteoSensor SHT3x;
-// создаём объект для работы с часами реального времени
-// RTC_DS1307 rtc;
-// Создаём объект для работы с акселерометром
+// Создаём объект для работы с барометром
 Barometer barometer;
 
 String ConvertCharToString(const char ch[])
@@ -42,100 +38,6 @@ String mac_address(void)
   sprintf(macStr, "%02X%02X%02X%02X%02X%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
   return String(macStr);
 }
-/*
-void initClock()
-{
-  // настраиваем часы реального времени
-  if (!rtc.begin())
-  {
-    while (1)
-      ;
-  }
-  if (!rtc.isrunning())
-  {
-    // following line sets the RTC to the date & time this sketch was compiled
-    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
-  }
-}
-
-// Set time via NTP, as required for x.509 validation
-void setClock()
-{
-  // Для работы TLS-соединения нужны корректные дата и время, получаем их с NTP серверов
-  configTime("MSK-3", "pool.ntp.org", "time.nist.gov");
-
-  if (DEBUG)
-  {
-    DEBUG_SERIAL.print(F("Waiting for NTP time sync: "));
-  }
-  int i = 0;
-  time_t now = time(nullptr);
-  while (now < 1000000000)
-  {
-    now = time(nullptr);
-    i++;
-    if (i > 60)
-    {
-      // Если в течение этого времени не удалось подключиться - выходим с false
-      // Бескорнечно ждать подключения опасно - если подключение было разорвано во время работы
-      // нужно всё равно "обслуживать" реле и датчики, иначе может случиться беда
-      if (DEBUG)
-      {
-        DEBUG_SERIAL.println();
-        DEBUG_SERIAL.println(F("Time sync failed!"));
-      }
-      // return false;
-    };
-    if (DEBUG)
-    {
-      DEBUG_SERIAL.print(F("."));
-    }
-    delay(500);
-  }
-
-  // Время успешно синхронизировано, выводим его в монитор порта
-  // Только для целей отладки, этот блок можно исключить
-  if (DEBUG)
-  {
-    DEBUG_SERIAL.println(F(" ok"));
-  }
-
-  struct tm timeinfo;
-  localtime_r(&now, &timeinfo);
-  if (DEBUG)
-  {
-    DEBUG_SERIAL.print(F("Current time: "));
-    DEBUG_SERIAL.print(asctime(&timeinfo));
-    DEBUG_SERIAL.println();
-  }
-  // корректируем время бортовых часов
-  rtc.adjust(DateTime(
-      2000 + (timeinfo.tm_year - 100),
-      timeinfo.tm_mon + 1,
-      timeinfo.tm_mday,
-      timeinfo.tm_hour,
-      timeinfo.tm_min,
-      timeinfo.tm_sec));
-
-  if (DEBUG)
-  {
-    DateTime now1 = rtc.now();
-    DEBUG_SERIAL.print(F("Date & Time: "));
-    DEBUG_SERIAL.print(now1.year(), DEC);
-    DEBUG_SERIAL.print(F("/"));
-    DEBUG_SERIAL.print(now1.month(), DEC);
-    DEBUG_SERIAL.print(F("/"));
-    DEBUG_SERIAL.print(now1.day(), DEC);
-    DEBUG_SERIAL.print(F(" ("));
-    DEBUG_SERIAL.print(now1.dayOfTheWeek());
-    DEBUG_SERIAL.print(F(") "));
-    DEBUG_SERIAL.print(now1.hour(), DEC);
-    DEBUG_SERIAL.print(F(":"));
-    DEBUG_SERIAL.print(now1.minute(), DEC);
-    DEBUG_SERIAL.print(F(":"));
-    DEBUG_SERIAL.println(now1.second(), DEC);
-  }
-}*/
 
 // Чтение температуры и влажности
 char *readWeatherData()
@@ -206,10 +108,13 @@ char *readWeatherData()
   }
   String buffer_st = "";
 
-  // dtostrf(float_temp, 6, 2, buffer);
   buffer_st = String("device-iot-wifi_slot");
   buffer_st.trim();
   doc["device"] = buffer_st;
+
+  buffer_st = String(mac_address());
+  buffer_st.trim();
+  doc["mac"] = buffer_st;
 
   dtostrf(float_temp, 6, 2, buffer);
   buffer_st = String(buffer);
@@ -230,17 +135,6 @@ char *readWeatherData()
   // чистим буфер
   deserializeJson(doc, json_buffer_err);
 
-  /*if (mqtt_client.connected())
-  {
-    mqtt_client.publish(json_buffer);
-    if (DEBUG)
-    {
-      //DEBUG_SERIAL.println(json_buffer);
-      //DEBUG_SERIAL.println();
-    }
-    memset(json_buffer, 0, sizeof(json_buffer));
-  }*/
-
   if (DEBUG)
   {
     DEBUG_SERIAL.println(json_buffer);
@@ -257,7 +151,7 @@ bool meteo_station_gpio_status()
   if (flag)
   {
     expander.digitalWrite(gpioOnOff, 0x1);
-    delay(500);
+    delay(1000);
     expander.digitalWrite(gpioOnOff, 0x0);
   }
   else

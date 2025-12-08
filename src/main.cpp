@@ -16,7 +16,6 @@ GpioExpander expander(43);
 #include <QuadDisplay2.h>
 // создаём объект класса QuadDisplay и передаём номер пина CS
 QuadDisplay qd(4);
-// include <CERTIFICATES.h>
 #include <constants.h>
 #include <LITTLEFS1.h>
 // WiFi клиент
@@ -31,7 +30,8 @@ MyOTA ota_client;
 MyClock clock_client;
 //
 #include <service_functions.h>
-//
+#define BUTTON_PIN 3
+
 // Функция обратного вызова при поступлении входящего сообщения от брокера
 void callback(char *topic, byte *payload, unsigned int length);
 
@@ -55,6 +55,8 @@ void setup()
   // синяя лампочка On/Off MQTT !!!
   expander.pinMode(gpioMQTT, OUTPUT);
   expander.digitalWrite(gpioMQTT, gpioSignalOff);
+  // настраиваем пин в режим входа
+  expander.pinMode(BUTTON_PIN, INPUT);
   // Инициализируем метеостанцию
   SHT3x.begin();
 
@@ -168,7 +170,7 @@ void loop()
       else if (first_flag == false)
       {
         static unsigned long weather_data_last_temp_read = 0;
-        if (((millis() - weather_data_last_temp_read) >= 7 * 60000))
+        if (((millis() - weather_data_last_temp_read) >= 30 * 60000))
         {
           weather_data_last_temp_read = millis();
           if (mqtt_client.status == 0x01) // если метеостанция включена
@@ -194,7 +196,14 @@ void loop()
   digitalWrite(gpioWiFi, wifi_client.gpio_status());
   // Контроль подключения к MQTT-серверу
   expander.digitalWrite(gpioMQTT, mqtt_client.gpio_status());
-
+  // считываем состояние пина
+  /*int buttonState = expander.digitalRead(BUTTON_PIN);
+  if (DEBUG)
+  {
+    // выводим в Serial-порт
+    DEBUG_SERIAL.println(buttonState);
+  }*/
+  delay(100);
   // Контроль включения метеостанции
   if (meteo_station_gpio_status())
     ;
@@ -203,6 +212,7 @@ void loop()
 // Функция обратного вызова при поступлении входящего сообщения от брокера
 void callback(char *topic, byte *payload, unsigned int length)
 {
+  Serial.println("runing callback ...");
   // Для более корректного сравнения строк приводим их к нижнему регистру и обрезаем пробелы с краев
   String _payload;
   for (unsigned int i = 0; i < length; i++)
