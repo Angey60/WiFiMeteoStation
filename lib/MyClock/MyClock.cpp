@@ -51,7 +51,7 @@ void MyClock::setClock()
         {
             Serial.print(F("."));
         }
-        delay(500);
+        custom_delay(500);
     }
 
     // Время успешно синхронизировано, выводим его в монитор порта
@@ -96,8 +96,4 @@ void MyClock::setClock()
         Serial.print(F(":"));
         Serial.println(now1.second(), DEC);
     }
-}
-
-void MyClock::run()
-{
 }

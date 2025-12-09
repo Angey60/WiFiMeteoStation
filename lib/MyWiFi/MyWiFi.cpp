@@ -11,10 +11,6 @@ void MyWiFi::begin()
     WiFi.begin(SSID, PASS);
 }
 
-void MyWiFi::run()
-{
-}
-
 // Подключение к WiFi точке доступа
 bool MyWiFi::connect()
 {
@@ -81,7 +77,7 @@ void MyWiFi::disconnect()
     while (WiFi.status() == WL_CONNECTED)
     {
         WiFi.disconnect();
-        delay(100);
+        custom_delay(100);
     }
 }
 

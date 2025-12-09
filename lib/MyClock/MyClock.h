@@ -6,15 +6,15 @@
 
 #include <Arduino.h>
 #include <avr/pgmspace.h>
+#include <CustomClass.h>
 
-class MyClock
+class MyClock : public CustomClass
 {
 public:
     MyClock();
     ~MyClock();
 
     void begin();
-    void run();
 
     void setClock();
 
