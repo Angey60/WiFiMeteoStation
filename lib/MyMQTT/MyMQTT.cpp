@@ -89,7 +89,7 @@ bool MyMQTT::connect()
                 {
                     Serial.print(F("."));
                 }
-                delay(500);
+                custom_delay(500);
             }
         }
 
@@ -142,8 +142,4 @@ void MyMQTT::publish(const char *json_buffer)
 bool MyMQTT::loop()
 {
     return client.loop();
-}
-
-void MyMQTT::run()
-{
 }

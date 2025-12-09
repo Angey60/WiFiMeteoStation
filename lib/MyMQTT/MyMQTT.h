@@ -5,15 +5,15 @@
 #include <avr/pgmspace.h>
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
+#include <CustomClass.h>
 
-class MyMQTT
+class MyMQTT : public CustomClass
 {
 public:
     MyMQTT();
     ~MyMQTT();
 
     void begin();
-    void run();
 
     bool connect();
     bool isConnected();

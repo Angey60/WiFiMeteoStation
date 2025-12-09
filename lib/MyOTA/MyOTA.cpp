@@ -104,10 +104,6 @@ void MyOTA::begin()
     }
 }
 
-void MyOTA::run()
-{
-}
-
 void update_started()
 {
     if (OTA_DEBUG)
