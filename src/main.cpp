@@ -6,6 +6,8 @@
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 //
+#include <SoftwareSerial.h>
+//
 #include <Adafruit_I2CDevice.h>
 // библиотека для работы с модулем Slot Expander (I²C IO)
 #include <GpioExpander.h>
@@ -40,7 +42,7 @@ void setup()
   // put your setup code here, to run once:
   Wire.begin();
   // Инициализируем бортовые часы
-  //initClock();
+  // initClock();
   clock_client.begin();
   //  Инициализируем объект display
   qd.begin();
@@ -58,14 +60,14 @@ void setup()
   // настраиваем пин в режим входа
   expander.pinMode(BUTTON_PIN, INPUT);
   // Инициализируем метеостанцию
-  SHT3x.begin();
+  // SHT3x.begin();
 
   DEBUG_SERIAL.begin(DEBUG_SERIAL_BAUDRATE);
   while (!DEBUG_SERIAL)
   {
     ;
   }
-  delay(500);
+  CustomDelay(500);
 
   if (DEBUG)
   {
@@ -73,7 +75,7 @@ void setup()
     DEBUG_SERIAL.println(F("Device started ..."));
     DEBUG_SERIAL.println();
     DEBUG_SERIAL.flush();
-    delay(500);
+    CustomDelay(500);
   }
 
   if (DEBUG)
@@ -85,14 +87,14 @@ void setup()
 
   // Индикатор включения/отклячения метеостанции
   expander.digitalWrite(gpioOnOff, gpioSignalOn);
-  delay(500);
+  CustomDelay(500);
   expander.digitalWrite(gpioOnOff, gpioSignalOff);
-  delay(500);
+  CustomDelay(500);
   // Индикатор включения/отклячения метеостанции
   expander.digitalWrite(gpioMQTT, gpioSignalOn);
-  delay(500);
+  CustomDelay(500);
   expander.digitalWrite(gpioMQTT, gpioSignalOff);
-  delay(500);
+  CustomDelay(500);
 
   wifi_client.disconnect();
   if (DEBUG)
@@ -126,10 +128,12 @@ void setup()
   if (meteo_station_gpio_status())
     ;
 
+  // Инициализируем метеостанцию
+  SHT3x.begin();
   // Инициализируем барометр
   barometer.begin();
-  delay(100);
 
+  // Делаем задержку перед обращением к серверу
   delay(5000);
 
   if (DEBUG)
@@ -170,7 +174,7 @@ void loop()
       else if (first_flag == false)
       {
         static unsigned long weather_data_last_temp_read = 0;
-        if (((millis() - weather_data_last_temp_read) >= 30 * 60000))
+        if (((millis() - weather_data_last_temp_read) >= 60 * 60000))
         {
           weather_data_last_temp_read = millis();
           if (mqtt_client.status == 0x01) // если метеостанция включена
@@ -203,7 +207,7 @@ void loop()
     // выводим в Serial-порт
     DEBUG_SERIAL.println(buttonState);
   }*/
-  delay(100);
+  CustomDelay(100);
   // Контроль включения метеостанции
   if (meteo_station_gpio_status())
     ;
@@ -263,8 +267,15 @@ void callback(char *topic, byte *payload, unsigned int length)
     clock_client.setClock();
     // Закрываем соединение с MQTT-брокером
     mqtt_client.disConnect();
-    delay(1000);
+    CustomDelay(1000);
     ota_client.begin();
     return;
   }
 }
+
+/*
+#define BLE_RX 10
+#define BLE_TX 11
+SoftwareSerial ble_serial(BLE_RX, BLE_TX);
+#define BLE_SERIAL ble_serial
+*/

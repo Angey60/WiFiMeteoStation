@@ -16,6 +16,15 @@ TroykaMeteoSensor SHT3x;
 // Создаём объект для работы с барометром
 Barometer barometer;
 
+void CustomDelay(unsigned long duration)
+{
+  unsigned long start = millis();
+  while (start + duration > millis())
+  {
+    sqrt(4700);
+  }
+}
+
 String ConvertCharToString(const char ch[])
 {
   String result = "";
@@ -24,7 +33,7 @@ String ConvertCharToString(const char ch[])
   {
     char c = pgm_read_byte_near(ch + i);
     result += c;
-    delay(10);
+    CustomDelay(10);
   }
   return result;
 }
@@ -39,6 +48,12 @@ String mac_address(void)
   return String(macStr);
 }
 
+String make_item(String key)
+{
+  String str = "";
+  return str;
+}
+
 // Чтение температуры и влажности
 char *readWeatherData()
 {
@@ -50,19 +65,19 @@ char *readWeatherData()
   String str_mill("");
 
   int stateSensor = SHT3x.read();
-  delay(250);
+  CustomDelay(250);
   // проверяем состояние данных
   switch (stateSensor)
   {
   case SHT_OK:
     // Публикуем данные на сервере
     float_temp = SHT3x.getTemperatureC();
-    delay(100);
+    CustomDelay(100);
     str_temp = String(float_temp);
     //  выводим на терминал
     qd.displayTemperatureC(int(SHT3x.getTemperatureC()));
     float_humd = SHT3x.getHumidity();
-    delay(50);
+    CustomDelay(50);
     str_humd = String(float_humd);
     if (DEBUG)
     {
@@ -96,7 +111,7 @@ char *readWeatherData()
   float pressureMillimetersHg = barometer.readPressureMillimetersHg();
   // Создаём переменную для значения высоты над уровнем море
   // float altitude = barometer.readAltitude();
-  delay(100);
+  CustomDelay(100);
 
   str_mill = String(pressureMillimetersHg);
   if (DEBUG)
@@ -151,13 +166,21 @@ bool meteo_station_gpio_status()
   if (flag)
   {
     expander.digitalWrite(gpioOnOff, 0x1);
-    delay(1000);
+    CustomDelay(1000);
     expander.digitalWrite(gpioOnOff, 0x0);
   }
   else
   {
     expander.digitalWrite(gpioOnOff, 0x0);
   }
-  delay(50);
+  CustomDelay(50);
   return flag;
 }
+
+/*
+StaticJsonDocument<200> doc;
+JsonObject root = doc.as<JsonObject>();
+// текущее время
+if (root.containsKey("hour")) {
+    in_hour = root["hour"].as<int>();
+}*/
