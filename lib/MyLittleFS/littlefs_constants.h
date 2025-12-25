@@ -1,0 +1,1 @@
+#define LITTLEFS_DEBUG true

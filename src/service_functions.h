@@ -75,7 +75,7 @@ char *readWeatherData()
     CustomDelay(100);
     str_temp = String(float_temp);
     //  выводим на терминал
-    qd.displayTemperatureC(int(SHT3x.getTemperatureC()));
+    //qd.displayTemperatureC(int(SHT3x.getTemperatureC()));
     float_humd = SHT3x.getHumidity();
     CustomDelay(50);
     str_humd = String(float_humd);
@@ -149,7 +149,12 @@ char *readWeatherData()
   serializeJson(doc, json_buffer);
   // чистим буфер
   deserializeJson(doc, json_buffer_err);
-
+  // передаем в BLE
+  if (BLE_SERIAL)
+  {
+    BLE_SERIAL.write(json_buffer);
+  }
+  // передаем в Serial
   if (DEBUG)
   {
     DEBUG_SERIAL.println(json_buffer);

@@ -5,67 +5,101 @@
 //
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
-//
+
 #include <SoftwareSerial.h>
-//
+#define BLE_RX A5
+#define BLE_TX A6
+SoftwareSerial ble_serial(BLE_TX, BLE_RX);
+#define BLE_SERIAL ble_serial
+
 #include <Adafruit_I2CDevice.h>
 // библиотека для работы с модулем Slot Expander (I²C IO)
 #include <GpioExpander.h>
-// создаём объект expander класса GpioExpander по адресу 42
+// создаём объект expander класса GpioExpander по адресу 43
 GpioExpander expander(43);
+// создаём объект expander класса GpioExpander по адресу 45
+GpioExpander expander_1(42);
 #include <Adafruit_BusIO_Register.h>
 #include <TroykaIMU.h>
-#include <QuadDisplay2.h>
-// создаём объект класса QuadDisplay и передаём номер пина CS
-QuadDisplay qd(4);
+// библиотека для работы с OLED-дисплеем
+#include <TroykaOLED.h>
+// создаём объект для работы с дисплеем
+// и передаём I²C адрес дисплея
+TroykaOLED myOLED(0x3C);
+// #include <QuadDisplay2.h>
+//  создаём объект класса QuadDisplay и передаём номера пинов CS, DI и ⎍
+// QuadDisplay qd(A2);
 #include <constants.h>
-#include <LITTLEFS1.h>
 // WiFi клиент
 #include <MyWiFi.h>
 MyWiFi wifi_client;
-// MQTT клиент
+// #include <MyBLE.h>
+// MyBLE ble_client;
+//  MQTT клиент
 #include <MyMQTT.h>
 MyMQTT mqtt_client;
 #include <MyOTA.h>
 MyOTA ota_client;
 #include <MyClock.h>
 MyClock clock_client;
+#include <MyLittleFS.h>
+MyLittleFS littlefs;
 //
 #include <service_functions.h>
-#define BUTTON_PIN 3
-
 // Функция обратного вызова при поступлении входящего сообщения от брокера
 void callback(char *topic, byte *payload, unsigned int length);
+//
+void ble_init();
 
 void setup()
 {
+  delay(2500);
+
   // put your setup code here, to run once:
   Wire.begin();
   // Инициализируем бортовые часы
   // initClock();
   clock_client.begin();
-  //  Инициализируем объект display
-  qd.begin();
   // Инициализируем объект expander.
   expander.begin();
+  CustomDelay(500);
+  // Инициализируем объект expander_1.
+  expander_1.begin();
+  CustomDelay(500);
   // Инициализируем индикаторы
   // красная лампочка On/Off WiFi
   pinMode(gpioWiFi, OUTPUT);
+  expander.digitalWrite(gpioWiFi, gpioSignalOff);
   // зеленая лампочка On/Off метеостанции
   expander.pinMode(gpioOnOff, OUTPUT);
   expander.digitalWrite(gpioOnOff, gpioSignalOff);
-  // синяя лампочка On/Off MQTT !!!
+  // синяя лампочка On/Off MQTT
   expander.pinMode(gpioMQTT, OUTPUT);
   expander.digitalWrite(gpioMQTT, gpioSignalOff);
-  // настраиваем пин в режим входа
-  expander.pinMode(BUTTON_PIN, INPUT);
-  // Инициализируем метеостанцию
-  // SHT3x.begin();
-
+  // желтая лампочка On/Off BLE
+  expander.pinMode(gpioBLE, OUTPUT);
+  expander.digitalWrite(gpioBLE, gpioSignalOff);
+  //
   DEBUG_SERIAL.begin(DEBUG_SERIAL_BAUDRATE);
   while (!DEBUG_SERIAL)
   {
     ;
+  }
+  CustomDelay(500);
+
+  BLE_SERIAL.begin(DEBUG_SERIAL_BAUDRATE);
+  while (!BLE_SERIAL)
+  {
+    ;
+  }
+  CustomDelay(500);
+
+  if (BLE_SERIAL)
+  {
+    if (DEBUG)
+    {
+      DEBUG_SERIAL.println(F("BLE functions ..."));
+    }
   }
   CustomDelay(500);
 
@@ -87,14 +121,19 @@ void setup()
 
   // Индикатор включения/отклячения метеостанции
   expander.digitalWrite(gpioOnOff, gpioSignalOn);
-  CustomDelay(500);
+  delay(500);
   expander.digitalWrite(gpioOnOff, gpioSignalOff);
-  CustomDelay(500);
-  // Индикатор включения/отклячения метеостанции
+  delay(500);
+  // Индикатор включения/отклячения MQTT
   expander.digitalWrite(gpioMQTT, gpioSignalOn);
-  CustomDelay(500);
+  delay(500);
   expander.digitalWrite(gpioMQTT, gpioSignalOff);
-  CustomDelay(500);
+  delay(500);
+  // Индикатор включения/отклячения BLE
+  expander.digitalWrite(gpioBLE, gpioSignalOn);
+  delay(500);
+  expander.digitalWrite(gpioBLE, gpioSignalOff);
+  delay(500);
 
   wifi_client.disconnect();
   if (DEBUG)
@@ -128,13 +167,25 @@ void setup()
   if (meteo_station_gpio_status())
     ;
 
+  // инициализируем дисплей
+  myOLED.begin();
+  // выбираем шрифт 6×8
+  myOLED.setFont(font6x8);
+  // печатаем строку
+  myOLED.print("Hello world!", 25, 0);
+  // выбираем шрифт 12×10
+  myOLED.setFont(font12x10);
+  // печатаем строку
+  myOLED.print("Amperka", 25, 20);
+  // инвертируем последующий текст
+  myOLED.invertText("true");
+  myOLED.print("OLED", 42, 45);
   // Инициализируем метеостанцию
   SHT3x.begin();
   // Инициализируем барометр
   barometer.begin();
-
   // Делаем задержку перед обращением к серверу
-  delay(5000);
+  delay(2500);
 
   if (DEBUG)
   {
@@ -145,12 +196,39 @@ void setup()
     DEBUG_SERIAL.println();
     DEBUG_SERIAL.print("ESP Board MAC Address:  ");
     DEBUG_SERIAL.println(mac_address());
+    DEBUG_SERIAL.println();
+  }
+  //
+  //
+  //
+  if (littlefs.begin())
+  {
+    if (DEBUG)
+    {
+      if (littlefs.checkFile("/text.txt"))
+      {
+        DEBUG_SERIAL.println(littlefs.readFile("/text.txt"));
+        DEBUG_SERIAL.println();
+        littlefs.appendFile("/text.txt", "Тяжела и неказиста жизнь кота у программиста");
+        DEBUG_SERIAL.println();
+        DEBUG_SERIAL.println(littlefs.readFile("/text.txt"));
+        DEBUG_SERIAL.println();
+      }
+      
+    }
+  }
+  else
+  {
+    if (DEBUG)
+    {
+      Serial.println(F("LittleFS mount failed"));
+    }
   }
 }
 
 void loop()
 {
-  if (wifi_client.isConnected())
+  /*if (wifi_client.isConnected())
   {
     if (!mqtt_client.loop())
     {
@@ -174,7 +252,7 @@ void loop()
       else if (first_flag == false)
       {
         static unsigned long weather_data_last_temp_read = 0;
-        if (((millis() - weather_data_last_temp_read) >= 60 * 60000))
+        if (((millis() - weather_data_last_temp_read) >= 3 * 60000))
         {
           weather_data_last_temp_read = millis();
           if (mqtt_client.status == 0x01) // если метеостанция включена
@@ -200,17 +278,20 @@ void loop()
   digitalWrite(gpioWiFi, wifi_client.gpio_status());
   // Контроль подключения к MQTT-серверу
   expander.digitalWrite(gpioMQTT, mqtt_client.gpio_status());
-  // считываем состояние пина
-  /*int buttonState = expander.digitalRead(BUTTON_PIN);
-  if (DEBUG)
+  // Контроль включение BLE
+  if (BLE_SERIAL)
   {
-    // выводим в Serial-порт
-    DEBUG_SERIAL.println(buttonState);
-  }*/
+    expander.digitalWrite(gpioBLE, gpioSignalOn);
+  }
+  else if (!BLE_SERIAL)
+  {
+    expander.digitalWrite(gpioBLE, gpioSignalOff);
+  }
   CustomDelay(100);
   // Контроль включения метеостанции
   if (meteo_station_gpio_status())
     ;
+    */
 }
 
 // Функция обратного вызова при поступлении входящего сообщения от брокера
@@ -271,11 +352,41 @@ void callback(char *topic, byte *payload, unsigned int length)
     ota_client.begin();
     return;
   }
+
+  if (command == "9")
+  {
+
+    // ble_init();
+  }
 }
 
-/*
-#define BLE_RX 10
-#define BLE_TX 11
-SoftwareSerial ble_serial(BLE_RX, BLE_TX);
-#define BLE_SERIAL ble_serial
-*/
+void ble_init()
+{
+  if (DEBUG)
+  {
+    // /yandex-iot-core/device-iot-wifi_slot/commands
+    if (DEBUG)
+    {
+      DEBUG_SERIAL.println(F("ble_serial init ..."));
+    }
+    if (!BLE_SERIAL)
+    {
+      BLE_SERIAL.begin(DEBUG_SERIAL_BAUDRATE);
+      while (!BLE_SERIAL)
+      {
+        delay(10);
+        DEBUG_SERIAL.print(".");
+      }
+      DEBUG_SERIAL.println();
+    }
+    if (BLE_SERIAL)
+    {
+      BLE_SERIAL.println(F("BLE functions ..."));
+
+      if (DEBUG)
+      {
+        DEBUG_SERIAL.println(F("BLE functions ..."));
+      }
+    }
+  }
+}
