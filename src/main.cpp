@@ -2,54 +2,54 @@
 #include <avr/pgmspace.h>
 #include <Wire.h>
 #include <time.h>
-//
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
-
 #include <SoftwareSerial.h>
+// настройка последовательного порта BLE
 #define BLE_RX A5
 #define BLE_TX A6
 SoftwareSerial ble_serial(BLE_TX, BLE_RX);
 #define BLE_SERIAL ble_serial
-
-#include <Adafruit_I2CDevice.h>
+// Библиотека ввода-вывода шины Adafruit I2C
+#include <Adafruit_I2CDevice.h> 
 // библиотека для работы с модулем Slot Expander (I²C IO)
 #include <GpioExpander.h>
 // создаём объект expander класса GpioExpander по адресу 43
 GpioExpander expander(43);
 // создаём объект expander класса GpioExpander по адресу 45
 GpioExpander expander_1(42);
-#include <Adafruit_BusIO_Register.h>
+//include <Adafruit_BusIO_Register.h> !!!
 #include <TroykaIMU.h>
 // библиотека для работы с OLED-дисплеем
 #include <TroykaOLED.h>
 // создаём объект для работы с дисплеем
 // и передаём I²C адрес дисплея
 TroykaOLED myOLED(0x3C);
-// #include <QuadDisplay2.h>
-//  создаём объект класса QuadDisplay и передаём номера пинов CS, DI и ⎍
-// QuadDisplay qd(A2);
 #include <constants.h>
 // WiFi клиент
 #include <MyWiFi.h>
 MyWiFi wifi_client;
-// #include <MyBLE.h>
-// MyBLE ble_client;
-//  MQTT клиент
+// BLE клиент
+#include <MyBLE.h>
+MyBLE ble_client;
+// MQTT клиент
 #include <MyMQTT.h>
 MyMQTT mqtt_client;
+// OTA клиентыs
 #include <MyOTA.h>
 MyOTA ota_client;
+// Clock клиент
 #include <MyClock.h>
 MyClock clock_client;
+// LittleFS клиент
 #include <MyLittleFS.h>
 MyLittleFS littlefs;
-//
+// Сервисные функции
 #include <service_functions.h>
 // Функция обратного вызова при поступлении входящего сообщения от брокера
 void callback(char *topic, byte *payload, unsigned int length);
 //
-void ble_init();
+void ble_init(); // !!!
 
 void setup()
 {
