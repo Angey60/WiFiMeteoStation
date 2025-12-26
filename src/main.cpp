@@ -135,6 +135,38 @@ void setup()
   expander.digitalWrite(gpioBLE, gpioSignalOff);
   delay(500);
 
+  if (littlefs.begin())
+  {
+
+    if (littlefs.checkFile("/dir/constants.txt"))
+    {
+      if (DEBUG)
+      {
+        DEBUG_SERIAL.println(littlefs.readFile("/dir/constants.txt"));
+        DEBUG_SERIAL.println();
+      }
+      // Считываем данные для подключения к WiFi
+      JsonObject json = StringToJson(littlefs.readFile("/dir/constants.txt"));
+      wifi_client.begin(json["SSID"], json["PASS"]);
+    }
+    else
+    {
+      if (DEBUG)
+      {
+        Serial.println(F("The data file for connecting to WiFi was not found"));
+      }
+      wifi_client.begin(wifi_client.ssid_def(), wifi_client.pass_def());
+    }
+  }
+  else
+  {
+    if (DEBUG)
+    {
+      Serial.println(F("LittleFS mount failed"));
+    }
+    wifi_client.begin(wifi_client.ssid_def(), wifi_client.pass_def());
+  }
+
   wifi_client.disconnect();
   if (DEBUG)
   {
@@ -197,32 +229,6 @@ void setup()
     DEBUG_SERIAL.print("ESP Board MAC Address:  ");
     DEBUG_SERIAL.println(mac_address());
     DEBUG_SERIAL.println();
-  }
-  //
-  //
-  //
-  if (littlefs.begin())
-  {
-    if (DEBUG)
-    {
-      if (littlefs.checkFile("/text.txt"))
-      {
-        DEBUG_SERIAL.println(littlefs.readFile("/text.txt"));
-        DEBUG_SERIAL.println();
-        littlefs.writeFile("/text.txt", "Тяжела и неказиста жизнь кота у программиста");
-        DEBUG_SERIAL.println();
-        DEBUG_SERIAL.println(littlefs.readFile("/text.txt"));
-        DEBUG_SERIAL.println();
-      }
-      
-    }
-  }
-  else
-  {
-    if (DEBUG)
-    {
-      Serial.println(F("LittleFS mount failed"));
-    }
   }
 }
 

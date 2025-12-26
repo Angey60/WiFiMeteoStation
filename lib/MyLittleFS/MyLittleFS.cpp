@@ -30,7 +30,6 @@ String MyLittleFS::readFile(const char *path)
     if (LITTLEFS_DEBUG)
     {
         Serial.printf("Reading file: %s\n", path);
-        //Serial.println();
     }
 
     String str = "";
@@ -60,7 +59,6 @@ bool MyLittleFS::writeFile(const char *path, const char *message)
     if (LITTLEFS_DEBUG)
     {
         Serial.printf("Writing file: %s\n", path);
-        //Serial.println();
     }
 
     bool flag = false;
@@ -102,7 +100,6 @@ bool MyLittleFS::appendFile(const char *path, const char *message)
     if (LITTLEFS_DEBUG)
     {
         Serial.printf("Appending to file: %s\n", path);
-        //Serial.println();
     }
 
     bool flag = false;
@@ -144,7 +141,6 @@ bool MyLittleFS::renameFile(const char *path1, const char *path2)
     if (LITTLEFS_DEBUG)
     {
         Serial.printf("Renaming file %s to %s\n", path1, path2);
-        //Serial.println();
     }
 
     bool flag = LittleFS.rename(path1, path2);
@@ -172,7 +168,6 @@ bool MyLittleFS::deleteFile(const char *path)
     if (LITTLEFS_DEBUG)
     {
         Serial.printf("Deleting file: %s\n", path);
-        //Serial.println();
     }
 
     bool flag = LittleFS.remove(path);
@@ -200,7 +195,6 @@ bool MyLittleFS::checkFile(const char *path)
     if (LITTLEFS_DEBUG)
     {
         Serial.printf("Checking file: %s\n", path);
-        //Serial.println();
     }
 
     bool flag = false;
@@ -214,7 +208,7 @@ bool MyLittleFS::checkFile(const char *path)
     return flag;
 }
 
-void listDir(const char *dirname) {
+/*void listDir(const char *dirname) {
   Serial.printf("Listing directory: %s\n", dirname);
 
   Dir root = LittleFS.openDir(dirname);
@@ -234,4 +228,5 @@ void listDir(const char *dirname) {
     Serial.printf("  LAST WRITE: %d-%02d-%02d %02d:%02d:%02d\n", (tmstruct->tm_year) + 1900, (tmstruct->tm_mon) + 1, tmstruct->tm_mday, tmstruct->tm_hour, tmstruct->tm_min, tmstruct->tm_sec);
   }
 }
+  */
 

@@ -1,0 +1,1 @@
+{"SSID":"MTSRouter_B769","PASS":"98797899"}

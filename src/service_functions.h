@@ -75,7 +75,7 @@ char *readWeatherData()
     CustomDelay(100);
     str_temp = String(float_temp);
     //  выводим на терминал
-    //qd.displayTemperatureC(int(SHT3x.getTemperatureC()));
+    // qd.displayTemperatureC(int(SHT3x.getTemperatureC()));
     float_humd = SHT3x.getHumidity();
     CustomDelay(50);
     str_humd = String(float_humd);
@@ -182,10 +182,14 @@ bool meteo_station_gpio_status()
   return flag;
 }
 
-/*
-StaticJsonDocument<200> doc;
-JsonObject root = doc.as<JsonObject>();
-// текущее время
-if (root.containsKey("hour")) {
-    in_hour = root["hour"].as<int>();
-}*/
+JsonObject StringToJson(String sbuf)
+{
+  JsonObject json = {};
+  auto error = deserializeJson(doc, sbuf);
+  if (!error)
+  {
+    json = doc.as<JsonObject>();
+  }
+  return json;
+  
+}

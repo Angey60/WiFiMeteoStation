@@ -1,14 +1,32 @@
 #include "MyWiFi.h"
+#include <ArduinoJson.h>
 #include "wifi_constants.h"
+
+// JsonDocument doc;
+// char json_buffer[50] = {0};
+// char json_buffer_err[50] = {0};
 
 MyWiFi::MyWiFi() {}
 MyWiFi::~MyWiFi() {}
 
-void MyWiFi::begin()
+void MyWiFi::begin(const char *SSID, const char *PASS)
 {
+    ssid = SSID;
+    pass = PASS;
+
     // Настраиваем WiFi
     WiFi.mode(WIFI_STA);
-    WiFi.begin(SSID, PASS);
+    WiFi.begin(ssid, pass);
+}
+
+const char *MyWiFi::ssid_def()
+{
+    return _SSID;
+}
+
+const char *MyWiFi::pass_def()
+{
+    return _PASS;
 }
 
 // Подключение к WiFi точке доступа
@@ -20,12 +38,12 @@ bool MyWiFi::connect()
         if (WIFI_DEBUG)
         {
             Serial.print(F("Connecting to WiFi AP "));
-            Serial.print(SSID);
+            Serial.print(ssid);
             Serial.println();
         }
 
         // Настраиваем WiFi
-        begin();
+        begin(ssid, pass);
 
         while (--tries && WiFi.status() != WL_CONNECTED)
         {
@@ -54,7 +72,7 @@ bool MyWiFi::connect()
             if (WIFI_DEBUG)
             {
                 Serial.print(F("Connecting to WiFi AP "));
-                Serial.println(SSID);
+                Serial.println(ssid);
                 Serial.print(F("IP address: "));
                 Serial.println(WiFi.localIP());
                 Serial.println();
