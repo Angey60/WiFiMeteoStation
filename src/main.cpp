@@ -209,7 +209,7 @@ void setup()
       {
         DEBUG_SERIAL.println(littlefs.readFile("/text.txt"));
         DEBUG_SERIAL.println();
-        littlefs.appendFile("/text.txt", "Тяжела и неказиста жизнь кота у программиста");
+        littlefs.writeFile("/text.txt", "Тяжела и неказиста жизнь кота у программиста");
         DEBUG_SERIAL.println();
         DEBUG_SERIAL.println(littlefs.readFile("/text.txt"));
         DEBUG_SERIAL.println();
@@ -228,7 +228,7 @@ void setup()
 
 void loop()
 {
-  /*if (wifi_client.isConnected())
+  if (wifi_client.isConnected())
   {
     if (!mqtt_client.loop())
     {
@@ -291,7 +291,6 @@ void loop()
   // Контроль включения метеостанции
   if (meteo_station_gpio_status())
     ;
-    */
 }
 
 // Функция обратного вызова при поступлении входящего сообщения от брокера

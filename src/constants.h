@@ -1,6 +1,6 @@
 
 #define DEBUG_SERIAL Serial
-#define DEBUG_SERIAL_BAUDRATE 9600
+#define DEBUG_SERIAL_BAUDRATE 115200
 #define DEBUG true
 
 // Номера выводов для подключения реле

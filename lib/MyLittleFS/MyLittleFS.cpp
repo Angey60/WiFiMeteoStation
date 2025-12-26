@@ -30,7 +30,7 @@ String MyLittleFS::readFile(const char *path)
     if (LITTLEFS_DEBUG)
     {
         Serial.printf("Reading file: %s\n", path);
-        Serial.println();
+        //Serial.println();
     }
 
     String str = "";
@@ -60,7 +60,7 @@ bool MyLittleFS::writeFile(const char *path, const char *message)
     if (LITTLEFS_DEBUG)
     {
         Serial.printf("Writing file: %s\n", path);
-        Serial.println();
+        //Serial.println();
     }
 
     bool flag = false;
@@ -102,7 +102,7 @@ bool MyLittleFS::appendFile(const char *path, const char *message)
     if (LITTLEFS_DEBUG)
     {
         Serial.printf("Appending to file: %s\n", path);
-        Serial.println();
+        //Serial.println();
     }
 
     bool flag = false;
@@ -144,7 +144,7 @@ bool MyLittleFS::renameFile(const char *path1, const char *path2)
     if (LITTLEFS_DEBUG)
     {
         Serial.printf("Renaming file %s to %s\n", path1, path2);
-        Serial.println();
+        //Serial.println();
     }
 
     bool flag = LittleFS.rename(path1, path2);
@@ -172,7 +172,7 @@ bool MyLittleFS::deleteFile(const char *path)
     if (LITTLEFS_DEBUG)
     {
         Serial.printf("Deleting file: %s\n", path);
-        Serial.println();
+        //Serial.println();
     }
 
     bool flag = LittleFS.remove(path);
@@ -200,7 +200,7 @@ bool MyLittleFS::checkFile(const char *path)
     if (LITTLEFS_DEBUG)
     {
         Serial.printf("Checking file: %s\n", path);
-        Serial.println();
+        //Serial.println();
     }
 
     bool flag = false;
