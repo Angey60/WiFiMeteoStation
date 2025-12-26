@@ -190,6 +190,6 @@ JsonObject StringToJson(String sbuf)
   {
     json = doc.as<JsonObject>();
   }
-  return json;
   
+  return json;
 }
