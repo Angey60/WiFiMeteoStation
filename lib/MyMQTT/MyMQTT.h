@@ -22,17 +22,13 @@ public:
 
     void disConnect();
     void publish(const char *json_buffer);
-    void setCallback(std::function<void(char*, uint8_t*, unsigned int)> callback);
+    void setCallback(std::function<void(char *, uint8_t *, unsigned int)> callback);
 
     // Статус метеостанции
     char status = 0x0;
 
-    bool mqtt_gpio_status();
-
 protected:
-    
 private:
-    
 };
 
 #endif // MyMQTT_H

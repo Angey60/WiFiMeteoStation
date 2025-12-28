@@ -10,6 +10,8 @@ public:
     MyBLE();
     ~MyBLE();
     void begin(uint32_t baud);
+    size_t write(const char *str);
+    bool gpio_status();
 
 protected:
 private:

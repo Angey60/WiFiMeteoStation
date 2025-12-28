@@ -150,9 +150,9 @@ char *readWeatherData()
   // чистим буфер
   deserializeJson(doc, json_buffer_err);
   // передаем в BLE
-  if (BLE_SERIAL)
+  if (ble_client.gpio_status())
   {
-    BLE_SERIAL.write(json_buffer);
+    ble_client.write(json_buffer);
   }
   // передаем в Serial
   if (DEBUG)

@@ -1,10 +1,7 @@
 #include "MyWiFi.h"
 #include <ArduinoJson.h>
+#include <SoftwareSerial.h>
 #include "wifi_constants.h"
-
-// JsonDocument doc;
-// char json_buffer[50] = {0};
-// char json_buffer_err[50] = {0};
 
 MyWiFi::MyWiFi() {}
 MyWiFi::~MyWiFi() {}

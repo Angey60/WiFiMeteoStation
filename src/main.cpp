@@ -4,21 +4,12 @@
 #include <time.h>
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
-#include <SoftwareSerial.h>
-// настройка последовательного порта BLE
-#define BLE_RX A5
-#define BLE_TX A6
-SoftwareSerial ble_serial(BLE_TX, BLE_RX);
-#define BLE_SERIAL ble_serial
-// Библиотека ввода-вывода шины Adafruit I2C
-#include <Adafruit_I2CDevice.h> 
 // библиотека для работы с модулем Slot Expander (I²C IO)
 #include <GpioExpander.h>
 // создаём объект expander класса GpioExpander по адресу 43
 GpioExpander expander(43);
 // создаём объект expander класса GpioExpander по адресу 45
 GpioExpander expander_1(42);
-//include <Adafruit_BusIO_Register.h> !!!
 #include <TroykaIMU.h>
 // библиотека для работы с OLED-дисплеем
 #include <TroykaOLED.h>
@@ -48,8 +39,6 @@ MyLittleFS littlefs;
 #include <service_functions.h>
 // Функция обратного вызова при поступлении входящего сообщения от брокера
 void callback(char *topic, byte *payload, unsigned int length);
-//
-void ble_init(); // !!!
 
 void setup()
 {
@@ -86,8 +75,11 @@ void setup()
     ;
   }
   CustomDelay(500);
-
-  BLE_SERIAL.begin(DEBUG_SERIAL_BAUDRATE);
+  // Инициализируем BLE
+  ble_client.begin(9600);
+  CustomDelay(500);
+  
+  /*BLE_SERIAL.begin(DEBUG_SERIAL_BAUDRATE);
   while (!BLE_SERIAL)
   {
     ;
@@ -101,7 +93,7 @@ void setup()
       DEBUG_SERIAL.println(F("BLE functions ..."));
     }
   }
-  CustomDelay(500);
+  CustomDelay(500);*/
 
   if (DEBUG)
   {
@@ -198,7 +190,6 @@ void setup()
   // Контроль включения метеостанции
   if (meteo_station_gpio_status())
     ;
-
   // инициализируем дисплей
   myOLED.begin();
   // выбираем шрифт 6×8
@@ -285,14 +276,7 @@ void loop()
   // Контроль подключения к MQTT-серверу
   expander.digitalWrite(gpioMQTT, mqtt_client.gpio_status());
   // Контроль включение BLE
-  if (BLE_SERIAL)
-  {
-    expander.digitalWrite(gpioBLE, gpioSignalOn);
-  }
-  else if (!BLE_SERIAL)
-  {
-    expander.digitalWrite(gpioBLE, gpioSignalOff);
-  }
+  expander.digitalWrite(gpioBLE, ble_client.gpio_status());
   CustomDelay(100);
   // Контроль включения метеостанции
   if (meteo_station_gpio_status())
@@ -365,7 +349,7 @@ void callback(char *topic, byte *payload, unsigned int length)
   }
 }
 
-void ble_init()
+/*void ble_init()
 {
   if (DEBUG)
   {
@@ -394,4 +378,4 @@ void ble_init()
       }
     }
   }
-}
+}*/

@@ -47,12 +47,12 @@ void MyMQTT::begin()
     //
 }
 
-void MyMQTT::setCallback(std::function<void(char*, uint8_t*, unsigned int)> callback)
+void MyMQTT::setCallback(std::function<void(char *, uint8_t *, unsigned int)> callback)
 {
     client.setCallback(callback);
 }
 
-bool MyMQTT::mqtt_gpio_status()
+bool MyMQTT::gpio_status()
 {
     return client.connected();
 }
@@ -116,10 +116,10 @@ bool MyMQTT::connect()
     return client.connected();
 }
 
-bool MyMQTT::gpio_status()
+/*bool MyMQTT::gpio_status()
 {
     return client.connected();
-}
+}*/
 
 bool MyMQTT::isConnected()
 {

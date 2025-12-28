@@ -197,15 +197,7 @@ bool MyLittleFS::checkFile(const char *path)
         Serial.printf("Checking file: %s\n", path);
     }
 
-    bool flag = false;
-
-    File file = LittleFS.open(path, "r");
-    if (file)
-    {
-        flag = true;
-    }
-
-    return flag;
+    return LittleFS.exists(path);
 }
 
 /*void listDir(const char *dirname) {

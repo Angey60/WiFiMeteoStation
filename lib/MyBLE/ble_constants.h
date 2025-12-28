@@ -1,6 +1,5 @@
-#include <SoftwareSerial.h>
+// настройка последовательного порта BLE
+#define BLE_RX A5
+#define BLE_TX A6
 
-#define BLE_RX A0
-#define BLE_TX A1
-SoftwareSerial ble_serial(BLE_RX, BLE_TX);
-#define BLE_SERIAL ble_serial
+#define BLE_DEBUG true
